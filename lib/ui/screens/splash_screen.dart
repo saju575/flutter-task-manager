@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:task_manager/ui/screens/login_screen.dart';
+import 'package:task_manager/ui/routes/app_routes.dart';
 import 'package:task_manager/ui/utils/assets_path.dart';
 import 'package:task_manager/ui/widgets/screen_background.dart';
 
@@ -21,10 +21,7 @@ class _SplashScreenState extends State<SplashScreen> {
   Future<void> _moveToNextScreen() async {
     await Future.delayed(const Duration(seconds: 2));
     if (mounted) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const LoginScreen()),
-      );
+      Navigator.pushReplacementNamed(context, AppRoutes.login);
     }
   }
 

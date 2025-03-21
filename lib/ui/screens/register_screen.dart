@@ -18,6 +18,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController _phoneTEController = TextEditingController();
   final TextEditingController _passwordTEController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  late bool _isPasswordHidden = true;
   @override
   void dispose() {
     _emailTEController.dispose();
@@ -86,9 +87,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                     TextFormField(
                       controller: _passwordTEController,
-                      obscureText: true,
+                      obscureText: _isPasswordHidden,
                       style: TextStyle(fontSize: 14),
-                      decoration: InputDecoration(hintText: "Password"),
+                      decoration: InputDecoration(
+                        hintText: "Password",
+                        suffixIcon: IconButton(
+                          onPressed: _onTapPasswordHide,
+                          icon: Icon(
+                            _isPasswordHidden
+                                ? Icons.visibility
+                                : Icons.visibility_off,
+                            color: AppColors.textColor,
+                          ),
+                        ),
+                      ),
                     ),
 
                     const SizedBox(height: 18),
@@ -137,6 +149,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
         ),
       ),
     );
+  }
+
+  void _onTapPasswordHide() {
+    setState(() {
+      _isPasswordHidden = !_isPasswordHidden;
+    });
   }
 
   void _onTapSubmitRegister() {

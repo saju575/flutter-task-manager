@@ -1,8 +1,6 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:task_manager/ui/screens/forget_password_verify_email_screen.dart';
-import 'package:task_manager/ui/screens/main_bottom_nav_screen.dart';
-import 'package:task_manager/ui/screens/register_screen.dart';
+import 'package:task_manager/ui/routes/app_routes.dart';
 import 'package:task_manager/ui/utils/app_colors.dart';
 import 'package:task_manager/ui/widgets/screen_background.dart';
 
@@ -17,6 +15,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _emailTExtController = TextEditingController();
   final TextEditingController _passwordTExtController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  late bool _isPasswordHidden = true;
   @override
   void dispose() {
     _emailTExtController.dispose();
@@ -58,9 +57,21 @@ class _LoginScreenState extends State<LoginScreen> {
 
                     TextFormField(
                       controller: _passwordTExtController,
-                      obscureText: true,
+                      obscureText: _isPasswordHidden,
+
                       style: TextStyle(fontSize: 14),
-                      decoration: InputDecoration(hintText: "Password"),
+                      decoration: InputDecoration(
+                        hintText: "Password",
+                        suffixIcon: IconButton(
+                          onPressed: _onTapPasswordHide,
+                          icon: Icon(
+                            _isPasswordHidden
+                                ? Icons.visibility
+                                : Icons.visibility_off,
+                            color: AppColors.textColor,
+                          ),
+                        ),
+                      ),
                     ),
 
                     const SizedBox(height: 18),
@@ -123,27 +134,25 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
+  void _onTapPasswordHide() {
+    setState(() {
+      _isPasswordHidden = !_isPasswordHidden;
+    });
+  }
+
   void _onTapSignInButton() {
-    Navigator.pushAndRemoveUntil(
+    Navigator.pushNamedAndRemoveUntil(
       context,
-      MaterialPageRoute(builder: (context) => const MainBottomNavScreen()),
+      AppRoutes.home,
       (predicate) => false,
     );
   }
 
   void _onTapForgotPassword() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const ForgetPasswordVerifyEmailScreen(),
-      ),
-    );
+    Navigator.pushNamed(context, AppRoutes.forgetPassword);
   }
 
   void _onTapSignUp() {
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => const RegisterScreen()),
-    );
+    Navigator.pushReplacementNamed(context, AppRoutes.signUp);
   }
 }

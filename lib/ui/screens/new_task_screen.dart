@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:task_manager/ui/routes/app_routes.dart';
 import 'package:task_manager/ui/utils/app_colors.dart';
 import 'package:task_manager/ui/widgets/screen_background.dart';
 import 'package:task_manager/ui/widgets/task_card.dart';
@@ -31,7 +32,7 @@ class _NewTaskScreenState extends State<NewTaskScreen> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
+        onPressed: _onTapAddTaskButton,
         child: const Icon(Icons.add),
       ),
     );
@@ -79,5 +80,9 @@ class _NewTaskScreenState extends State<NewTaskScreen> {
         ),
       ],
     );
+  }
+
+  void _onTapAddTaskButton() {
+    Navigator.pushNamed(context, AppRoutes.addNewTask);
   }
 }

@@ -16,6 +16,8 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
   final TextEditingController _confirmPasswordTExtController =
       TextEditingController();
   final TextEditingController _passwordTExtController = TextEditingController();
+  late bool _isPasswordHidden = true;
+  late bool _isConfirmPasswordHidden = true;
 
   @override
   void dispose() {
@@ -52,19 +54,42 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
 
                     TextFormField(
                       textInputAction: TextInputAction.next,
-                      obscureText: true,
+                      obscureText: _isPasswordHidden,
                       controller: _passwordTExtController,
                       style: TextStyle(fontSize: 14),
-                      decoration: InputDecoration(hintText: "Password"),
+                      decoration: InputDecoration(
+                        hintText: "Password",
+                        suffixIcon: IconButton(
+                          onPressed: _onTapPasswordHide,
+                          icon: Icon(
+                            _isPasswordHidden
+                                ? Icons.visibility
+                                : Icons.visibility_off,
+                            color: AppColors.textColor,
+                          ),
+                        ),
+                      ),
                     ),
 
                     const SizedBox(height: 12),
 
                     TextFormField(
                       controller: _confirmPasswordTExtController,
-                      obscureText: true,
+                      obscureText: _isConfirmPasswordHidden,
                       style: TextStyle(fontSize: 14),
-                      decoration: InputDecoration(hintText: "Confirm Password"),
+                      decoration: InputDecoration(
+                        hintText: "Confirm Password",
+
+                        suffixIcon: IconButton(
+                          onPressed: _onTapConfirmPasswordHide,
+                          icon: Icon(
+                            _isConfirmPasswordHidden
+                                ? Icons.visibility
+                                : Icons.visibility_off,
+                            color: AppColors.textColor,
+                          ),
+                        ),
+                      ),
                     ),
 
                     const SizedBox(height: 18),
@@ -113,6 +138,18 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
         ),
       ),
     );
+  }
+
+  void _onTapPasswordHide() {
+    setState(() {
+      _isPasswordHidden = !_isPasswordHidden;
+    });
+  }
+
+  void _onTapConfirmPasswordHide() {
+    setState(() {
+      _isConfirmPasswordHidden = !_isConfirmPasswordHidden;
+    });
   }
 
   void _onTapSubmitButton() {
