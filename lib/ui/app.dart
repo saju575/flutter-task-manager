@@ -42,8 +42,8 @@ class TaskManagerApp extends StatelessWidget {
           ),
           fillColor: AppColors.whiteColor,
           filled: true,
-          contentPadding: EdgeInsets.symmetric(horizontal: 16),
-          border: _getDynamicBorder(4), // Pass desired border radius
+          contentPadding: EdgeInsets.only(left: 0, right: 16),
+          border: _getDynamicBorder(4),
           enabledBorder: _getDynamicBorder(4),
           errorBorder: _getDynamicBorder(4),
         ),
