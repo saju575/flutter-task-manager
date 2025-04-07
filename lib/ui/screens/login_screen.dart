@@ -1,7 +1,9 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:task_manager/data/models/login_model.dart';
 import 'package:task_manager/data/services/network_client.dart';
 import 'package:task_manager/data/utils/urls.dart';
+import 'package:task_manager/ui/controllers/auth_controller.dart';
 import 'package:task_manager/ui/routes/app_routes.dart';
 import 'package:task_manager/ui/utils/app_colors.dart';
 import 'package:task_manager/ui/utils/input_validator.dart';
@@ -184,6 +186,13 @@ class _LoginScreenState extends State<LoginScreen> {
     });
     if (!mounted) return;
     if (response.isSuccess) {
+      LoginModel loginModel = LoginModel.fromJson(response.data);
+
+      AuthController.saveUserInformation(
+        loginModel.token,
+        loginModel.userData!,
+      );
+
       Navigator.pushNamedAndRemoveUntil(
         context,
         AppRoutes.home,

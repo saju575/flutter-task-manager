@@ -54,7 +54,10 @@ class _AddNewTaskScreenState extends State<AddNewTaskScreen> {
                       keyboardType: TextInputType.text,
                       controller: _subjectTExtController,
                       style: TextStyle(fontSize: 14),
-                      decoration: InputDecoration(hintText: "Subject"),
+                      decoration: InputDecoration(
+                        hintText: "Subject",
+                        prefix: Padding(padding: EdgeInsets.only(left: 16)),
+                      ),
                     ),
 
                     const SizedBox(height: 14),

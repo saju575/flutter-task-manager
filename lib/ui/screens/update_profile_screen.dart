@@ -87,7 +87,10 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
                       keyboardType: TextInputType.emailAddress,
                       controller: _emailTEController,
                       style: TextStyle(fontSize: 14),
-                      decoration: InputDecoration(hintText: "Email"),
+                      decoration: InputDecoration(
+                        hintText: "Email",
+                        prefix: Padding(padding: EdgeInsets.only(left: 16)),
+                      ),
                     ),
 
                     const SizedBox(height: 13),
@@ -95,7 +98,10 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
                       textInputAction: TextInputAction.next,
                       controller: _firstNameTEController,
                       style: TextStyle(fontSize: 14),
-                      decoration: InputDecoration(hintText: "First Name"),
+                      decoration: InputDecoration(
+                        hintText: "First Name",
+                        prefix: Padding(padding: EdgeInsets.only(left: 16)),
+                      ),
                     ),
 
                     const SizedBox(height: 13),
@@ -103,7 +109,10 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
                       textInputAction: TextInputAction.next,
                       controller: _lastNameTEController,
                       style: TextStyle(fontSize: 14),
-                      decoration: InputDecoration(hintText: "Last Name"),
+                      decoration: InputDecoration(
+                        hintText: "Last Name",
+                        prefix: Padding(padding: EdgeInsets.only(left: 16)),
+                      ),
                     ),
 
                     const SizedBox(height: 13),
@@ -112,7 +121,10 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
                       controller: _phoneTEController,
                       keyboardType: TextInputType.phone,
                       style: TextStyle(fontSize: 14),
-                      decoration: InputDecoration(hintText: "Mobile"),
+                      decoration: InputDecoration(
+                        hintText: "Mobile",
+                        prefix: Padding(padding: EdgeInsets.only(left: 16)),
+                      ),
                     ),
 
                     const SizedBox(height: 16),
