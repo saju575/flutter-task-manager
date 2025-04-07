@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:task_manager/ui/routes/app_routes.dart';
+import 'package:task_manager/ui/utils/app_colors.dart';
 import 'package:task_manager/ui/widgets/screen_background.dart';
+import 'package:task_manager/ui/widgets/task_card.dart';
 import 'package:task_manager/ui/widgets/task_manager_status_card.dart';
 
 class NewTaskScreen extends StatefulWidget {
@@ -18,12 +21,35 @@ class _NewTaskScreenState extends State<NewTaskScreen> {
       body: ScreenBackground(
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 9, horizontal: 12),
-          child: Column(children: [_buildSummarySection(textTheme)]),
+          child: CustomScrollView(
+            scrollBehavior: ScrollBehavior().copyWith(scrollbars: false),
+            slivers: [
+              SliverToBoxAdapter(child: _buildSummarySection(textTheme)),
+              const SliverToBoxAdapter(child: SizedBox(height: 9)),
+              _newTaskList(textTheme),
+            ],
+          ),
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
+        onPressed: _onTapAddTaskButton,
         child: const Icon(Icons.add),
+      ),
+    );
+  }
+
+  Widget _newTaskList(TextTheme textTheme) {
+    return SliverList(
+      delegate: SliverChildBuilderDelegate(
+        (context, index) => TaskCard(
+          textTheme: textTheme,
+          title: "Task Title",
+          description: "Description",
+          date: "01/01/2023",
+          status: "New",
+          statusBgColor: AppColors.primaryColor,
+        ),
+        childCount: 10,
       ),
     );
   }
@@ -54,5 +80,9 @@ class _NewTaskScreenState extends State<NewTaskScreen> {
         ),
       ],
     );
+  }
+
+  void _onTapAddTaskButton() {
+    Navigator.pushNamed(context, AppRoutes.addNewTask);
   }
 }

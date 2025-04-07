@@ -1,6 +1,6 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:task_manager/ui/screens/forget_password_pin_verification_screen.dart';
+import 'package:task_manager/ui/routes/app_routes.dart';
 import 'package:task_manager/ui/utils/app_colors.dart';
 import 'package:task_manager/ui/widgets/screen_background.dart';
 
@@ -107,12 +107,7 @@ class _ForgetPasswordVerifyEmailScreenState
   }
 
   void _onTapSubmitButton() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const ForgetPasswordPinVerificationScreen(),
-      ),
-    );
+    Navigator.pushNamed(context, AppRoutes.forgetPasswordPinVerification);
   }
 
   void _onTapSignIn() {

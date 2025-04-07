@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:task_manager/ui/screens/splash_screen.dart';
+import 'package:task_manager/ui/routes/app_routes.dart';
 import 'package:task_manager/ui/utils/app_colors.dart';
 
 class TaskManagerApp extends StatelessWidget {
@@ -9,7 +9,9 @@ class TaskManagerApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: const SplashScreen(),
+      routes: AppRoutes.routes,
+      initialRoute: AppRoutes.splash,
+
       theme: ThemeData(
         primaryColor: AppColors.primaryColor, // Primary color of the app
         scaffoldBackgroundColor: AppColors.whiteColor, // Background color
@@ -40,8 +42,8 @@ class TaskManagerApp extends StatelessWidget {
           ),
           fillColor: AppColors.whiteColor,
           filled: true,
-          contentPadding: EdgeInsets.symmetric(horizontal: 16),
-          border: _getDynamicBorder(4), // Pass desired border radius
+          contentPadding: EdgeInsets.only(left: 0, right: 16),
+          border: _getDynamicBorder(4),
           enabledBorder: _getDynamicBorder(4),
           errorBorder: _getDynamicBorder(4),
         ),

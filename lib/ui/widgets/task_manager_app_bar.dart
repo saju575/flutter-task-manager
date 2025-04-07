@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:task_manager/ui/routes/app_routes.dart';
 import 'package:task_manager/ui/utils/app_colors.dart';
 
 class TaskManagerAppBar extends StatelessWidget implements PreferredSizeWidget {
@@ -18,46 +19,51 @@ class TaskManagerAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      title: Row(
-        spacing: 8,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          CircleAvatar(radius: 16),
+      titleSpacing: Navigator.canPop(context) ? 0 : 14,
+      iconTheme: IconThemeData(color: AppColors.whiteColor),
+      title: GestureDetector(
+        onTap: () => _onTapProfile(context),
+        child: Row(
+          spacing: 8,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            CircleAvatar(radius: 16),
 
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  name,
-                  style: textTheme.bodyMedium?.copyWith(
-                    color: AppColors.whiteColor,
-                    fontWeight: FontWeight.w500,
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    name,
+                    style: textTheme.bodyMedium?.copyWith(
+                      color: AppColors.whiteColor,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    maxLines: 1,
                   ),
-                  maxLines: 1,
-                ),
-                SizedBox(height: 2),
-                Text(
-                  gmail,
-                  style: textTheme.bodySmall?.copyWith(
-                    color: AppColors.whiteColor,
-                    fontSize: 10,
-                    fontWeight: FontWeight.w400,
+                  SizedBox(height: 2),
+                  Text(
+                    gmail,
+                    style: textTheme.bodySmall?.copyWith(
+                      color: AppColors.whiteColor,
+                      fontSize: 10,
+                      fontWeight: FontWeight.w400,
+                    ),
+                    maxLines: 1,
                   ),
-                  maxLines: 1,
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          IconButton(
-            onPressed: onLogout,
-            icon: Icon(
-              Icons.login_outlined,
-              color: Colors.red.shade400,
-              size: 24,
+            IconButton(
+              onPressed: onLogout,
+              icon: Icon(
+                Icons.login_outlined,
+                color: Colors.red.shade400,
+                size: 24,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
       backgroundColor: AppColors.primaryColor,
     );
@@ -65,4 +71,10 @@ class TaskManagerAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Size get preferredSize => const Size.fromHeight(56);
+
+  void _onTapProfile(BuildContext context) {
+    if (ModalRoute.of(context)?.settings.name != AppRoutes.updateProfile) {
+      Navigator.pushNamed(context, AppRoutes.updateProfile);
+    }
+  }
 }
