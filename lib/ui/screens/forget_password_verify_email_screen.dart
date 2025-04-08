@@ -1,7 +1,8 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:task_manager/ui/routes/app_routes.dart';
+// import 'package:task_manager/ui/routes/app_routes.dart';
 import 'package:task_manager/ui/utils/app_colors.dart';
+import 'package:task_manager/ui/utils/input_validator.dart';
 import 'package:task_manager/ui/widgets/screen_background.dart';
 
 class ForgetPasswordVerifyEmailScreen extends StatefulWidget {
@@ -55,13 +56,18 @@ class _ForgetPasswordVerifyEmailScreenState
                       keyboardType: TextInputType.emailAddress,
                       controller: _emailTExtController,
                       style: TextStyle(fontSize: 14),
-                      decoration: InputDecoration(hintText: "Email"),
+                      decoration: InputDecoration(
+                        hintText: "Email",
+                        prefix: Padding(padding: EdgeInsets.only(left: 16)),
+                      ),
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                      validator: InputValidator.validateEmail,
                     ),
 
                     const SizedBox(height: 19),
 
                     ElevatedButton(
-                      onPressed: _onTapSubmitButton,
+                      onPressed: () => _onTapSubmitButton(context),
                       child: Icon(Icons.arrow_forward),
                     ),
 
@@ -106,8 +112,20 @@ class _ForgetPasswordVerifyEmailScreenState
     );
   }
 
-  void _onTapSubmitButton() {
-    Navigator.pushNamed(context, AppRoutes.forgetPasswordPinVerification);
+  void _onTapSubmitButton(BuildContext context) {
+    if (_formKey.currentState!.validate()) {
+      _submitEmail(context);
+    }
+  }
+
+  Future<void> _submitEmail(BuildContext context) async {
+    if (context.mounted) {
+      // Navigator.pushNamed(
+      //   context,
+      //   AppRoutes.forgetPasswordPinVerification,
+      //   arguments: _emailTExtController.text.trim(),
+      // );
+    }
   }
 
   void _onTapSignIn() {

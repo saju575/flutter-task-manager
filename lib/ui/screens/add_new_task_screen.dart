@@ -25,11 +25,7 @@ class _AddNewTaskScreenState extends State<AddNewTaskScreen> {
   Widget build(BuildContext context) {
     TextTheme textTheme = Theme.of(context).textTheme;
     return Scaffold(
-      appBar: TaskManagerAppBar(
-        textTheme: textTheme,
-        name: "User Name",
-        gmail: "0lGKo@example.com",
-      ),
+      appBar: TaskManagerAppBar(textTheme: textTheme),
       body: ScreenBackground(
         child: Center(
           child: SingleChildScrollView(

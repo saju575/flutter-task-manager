@@ -25,11 +25,7 @@ class _MainBottomNavScreenState extends State<MainBottomNavScreen> {
     TextTheme textTheme = Theme.of(context).textTheme;
     return Scaffold(
       body: screens[_selectedIndex],
-      appBar: TaskManagerAppBar(
-        textTheme: textTheme,
-        name: "User Name",
-        gmail: "0lGKo@example.com",
-      ),
+      appBar: TaskManagerAppBar(textTheme: textTheme),
 
       bottomNavigationBar: NavigationBar(
         selectedIndex: _selectedIndex,

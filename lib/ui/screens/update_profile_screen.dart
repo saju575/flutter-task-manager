@@ -1,6 +1,8 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:task_manager/data/models/user_model.dart';
+import 'package:task_manager/ui/controllers/auth_controller.dart';
 import 'package:task_manager/ui/widgets/screen_background.dart';
 import 'package:task_manager/ui/widgets/task_manager_app_bar.dart';
 
@@ -21,6 +23,7 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
 
   final ImagePicker _picker = ImagePicker();
   File? _image;
+
   Future<void> _pickImage() async {
     final XFile? pickedFile = await _picker.pickImage(
       source: ImageSource.gallery,
@@ -30,6 +33,16 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
         _image = File(pickedFile.path);
       });
     }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    UserModel? userModel = AuthController.userModel;
+    _emailTEController.text = userModel?.email ?? "";
+    _firstNameTEController.text = userModel?.firstName ?? "";
+    _lastNameTEController.text = userModel?.lastName ?? "";
+    _phoneTEController.text = userModel?.mobile ?? "";
   }
 
   @override
@@ -46,11 +59,7 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
   Widget build(BuildContext context) {
     TextTheme textTheme = Theme.of(context).textTheme;
     return Scaffold(
-      appBar: TaskManagerAppBar(
-        textTheme: textTheme,
-        name: "User Name",
-        gmail: "0lGKo@example.com",
-      ),
+      appBar: TaskManagerAppBar(textTheme: textTheme),
       body: ScreenBackground(
         child: Center(
           child: SingleChildScrollView(
