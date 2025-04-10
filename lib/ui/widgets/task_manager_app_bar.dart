@@ -4,12 +4,11 @@ import 'package:task_manager/ui/routes/app_routes.dart';
 import 'package:task_manager/ui/utils/app_colors.dart';
 
 class TaskManagerAppBar extends StatelessWidget implements PreferredSizeWidget {
-  const TaskManagerAppBar({super.key, required this.textTheme});
-
-  final TextTheme textTheme;
+  const TaskManagerAppBar({super.key});
 
   @override
   Widget build(BuildContext context) {
+    TextTheme textTheme = Theme.of(context).textTheme;
     return AppBar(
       titleSpacing: Navigator.canPop(context) ? 0 : 14,
       iconTheme: IconThemeData(color: AppColors.whiteColor),

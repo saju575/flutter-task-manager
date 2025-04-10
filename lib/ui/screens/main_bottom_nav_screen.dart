@@ -22,10 +22,9 @@ class _MainBottomNavScreenState extends State<MainBottomNavScreen> {
   ];
   @override
   Widget build(BuildContext context) {
-    TextTheme textTheme = Theme.of(context).textTheme;
     return Scaffold(
       body: screens[_selectedIndex],
-      appBar: TaskManagerAppBar(textTheme: textTheme),
+      appBar: const TaskManagerAppBar(),
 
       bottomNavigationBar: NavigationBar(
         selectedIndex: _selectedIndex,

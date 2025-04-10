@@ -24,9 +24,8 @@ class _AddNewTaskScreenState extends State<AddNewTaskScreen> {
 
   @override
   Widget build(BuildContext context) {
-    TextTheme textTheme = Theme.of(context).textTheme;
     return Scaffold(
-      appBar: TaskManagerAppBar(textTheme: textTheme),
+      appBar: const TaskManagerAppBar(),
       body: ScreenBackground(
         child: Center(
           child: SingleChildScrollView(
