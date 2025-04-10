@@ -9,6 +9,7 @@ import 'package:task_manager/ui/utils/app_colors.dart';
 import 'package:task_manager/ui/utils/input_validator.dart';
 import 'package:task_manager/ui/widgets/screen_background.dart';
 import 'package:task_manager/ui/widgets/snack_bar_message.dart';
+import 'package:task_manager/ui/widgets/spiner.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -22,7 +23,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _passwordTExtController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   late bool _isPasswordHidden = true;
-  bool _isLoginInProgress = false;
+  late bool _isLoginInProgress = false;
   @override
   void dispose() {
     _emailTExtController.dispose();
@@ -91,18 +92,11 @@ class _LoginScreenState extends State<LoginScreen> {
                     const SizedBox(height: 18),
 
                     ElevatedButton(
-                      onPressed: _onTapSignInButton,
+                      onPressed: _isLoginInProgress ? null : _onTapSignInButton,
                       child:
                           _isLoginInProgress
-                              ? SizedBox(
-                                height: 16,
-                                width: 16,
-                                child: CircularProgressIndicator(
-                                  color: AppColors.whiteColor,
-                                  strokeWidth: 2,
-                                ),
-                              )
-                              : Icon(Icons.arrow_forward),
+                              ? const Spinner()
+                              : const Icon(Icons.arrow_forward),
                     ),
                     const SizedBox(height: 73),
 
@@ -184,14 +178,14 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() {
       _isLoginInProgress = false;
     });
-    if (!mounted) return;
     if (response.isSuccess) {
       LoginModel loginModel = LoginModel.fromJson(response.data);
 
-      AuthController.saveUserInformation(
+      await AuthController.saveUserInformation(
         loginModel.token,
         loginModel.userData!,
       );
+      if (!mounted) return;
 
       Navigator.pushNamedAndRemoveUntil(
         context,
@@ -199,6 +193,7 @@ class _LoginScreenState extends State<LoginScreen> {
         (predicate) => false,
       );
     } else {
+      if (!mounted) return;
       showSnackBarMessage(
         context,
         message: response.errorMessage,

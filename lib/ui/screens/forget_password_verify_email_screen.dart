@@ -1,9 +1,13 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-// import 'package:task_manager/ui/routes/app_routes.dart';
+import 'package:task_manager/data/services/network_client.dart';
+import 'package:task_manager/data/utils/urls.dart';
+import 'package:task_manager/ui/routes/app_routes.dart';
 import 'package:task_manager/ui/utils/app_colors.dart';
 import 'package:task_manager/ui/utils/input_validator.dart';
 import 'package:task_manager/ui/widgets/screen_background.dart';
+import 'package:task_manager/ui/widgets/snack_bar_message.dart';
+import 'package:task_manager/ui/widgets/spiner.dart';
 
 class ForgetPasswordVerifyEmailScreen extends StatefulWidget {
   const ForgetPasswordVerifyEmailScreen({super.key});
@@ -17,6 +21,8 @@ class _ForgetPasswordVerifyEmailScreenState
     extends State<ForgetPasswordVerifyEmailScreen> {
   final TextEditingController _emailTExtController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
+  late bool _isLoading = false;
 
   @override
   void dispose() {
@@ -67,8 +73,11 @@ class _ForgetPasswordVerifyEmailScreenState
                     const SizedBox(height: 19),
 
                     ElevatedButton(
-                      onPressed: () => _onTapSubmitButton(context),
-                      child: Icon(Icons.arrow_forward),
+                      onPressed:_isLoading?null: () => _onTapSubmitButton(context),
+                      child:
+                          _isLoading
+                              ? const Spinner()
+                              : const Icon(Icons.arrow_forward),
                     ),
 
                     const SizedBox(height: 44),
@@ -119,13 +128,25 @@ class _ForgetPasswordVerifyEmailScreenState
   }
 
   Future<void> _submitEmail(BuildContext context) async {
-    if (context.mounted) {
-      // Navigator.pushNamed(
-      //   context,
-      //   AppRoutes.forgetPasswordPinVerification,
-      //   arguments: _emailTExtController.text.trim(),
-      // );
-    }
+    setState(() {
+      _isLoading = true;
+    });
+    NetworkResponse response = await NetworkClient.getRequest(
+      url: Urls.recoverVerifyEmail(_emailTExtController.text.trim()),
+    );
+    setState(() {
+      _isLoading = false;
+    });
+
+    if (!context.mounted) return;
+
+    response.isSuccess
+        ? Navigator.pushNamed(
+          context,
+          AppRoutes.forgetPasswordPinVerification,
+          arguments: _emailTExtController.text.trim(),
+        )
+        : showSnackBarMessage(context, message: response.errorMessage);
   }
 
   void _onTapSignIn() {

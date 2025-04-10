@@ -54,7 +54,7 @@ class TaskManagerApp extends StatelessWidget {
             backgroundColor: AppColors.primaryColor,
             foregroundColor: AppColors.whiteColor,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(6),
+              borderRadius:  BorderRadius.circular(6),
             ),
           ),
         ),

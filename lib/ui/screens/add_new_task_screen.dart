@@ -11,13 +11,14 @@ class AddNewTaskScreen extends StatefulWidget {
 
 class _AddNewTaskScreenState extends State<AddNewTaskScreen> {
   final TextEditingController _subjectTExtController = TextEditingController();
-  final TextEditingController _desccriptionTExtController =
+  final TextEditingController _descriptionTEController =
       TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
   @override
   void dispose() {
     _subjectTExtController.dispose();
-    _desccriptionTExtController.dispose();
+    _descriptionTEController.dispose();
     super.dispose();
   }
 
@@ -59,9 +60,8 @@ class _AddNewTaskScreenState extends State<AddNewTaskScreen> {
                     const SizedBox(height: 14),
 
                     TextFormField(
-                      controller: _desccriptionTExtController,
+                      controller: _descriptionTEController,
                       maxLines: 10,
-
                       style: TextStyle(fontSize: 14),
                       decoration: InputDecoration(
                         hintText: "Description",

@@ -1,9 +1,15 @@
+import 'dart:async';
+
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
+import 'package:task_manager/data/services/network_client.dart';
+import 'package:task_manager/data/utils/urls.dart';
 import 'package:task_manager/ui/routes/app_routes.dart';
 import 'package:task_manager/ui/utils/app_colors.dart';
 import 'package:task_manager/ui/widgets/screen_background.dart';
+import 'package:task_manager/ui/widgets/spiner.dart';
 
 class ForgetPasswordPinVerificationScreen extends StatefulWidget {
   const ForgetPasswordPinVerificationScreen({super.key});
@@ -16,17 +22,25 @@ class ForgetPasswordPinVerificationScreen extends StatefulWidget {
 class _ForgetPasswordPinVerificationScreenState
     extends State<ForgetPasswordPinVerificationScreen> {
   final TextEditingController _pinCodeTEController = TextEditingController();
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final StreamController<ErrorAnimationType> _errorController =
+      StreamController<ErrorAnimationType>();
+
+  late bool _hasError = false;
+  late bool _isSubmitting = false;
 
   @override
   void dispose() {
     // if (mounted) {
-    //   _pinCodeTEController.dispose();
+    // _pinCodeTEController.dispose();
     // }
+    _errorController.close();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final String email = ModalRoute.of(context)?.settings.arguments as String;
     return Scaffold(
       body: ScreenBackground(
         child: Center(
@@ -35,6 +49,7 @@ class _ForgetPasswordPinVerificationScreenState
               padding: const EdgeInsets.all(24),
 
               child: Form(
+                key: _formKey,
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -52,6 +67,8 @@ class _ForgetPasswordPinVerificationScreenState
                     const SizedBox(height: 18),
                     PinCodeTextField(
                       length: 6,
+                      errorAnimationController: _errorController,
+                      cursorColor: AppColors.primaryColor,
                       obscureText: false,
                       animationType: AnimationType.fade,
                       pinTheme: PinTheme(
@@ -63,9 +80,18 @@ class _ForgetPasswordPinVerificationScreenState
                         selectedFillColor: AppColors.whiteColor,
                         inactiveFillColor: AppColors.whiteColor,
                         borderWidth: 0,
-                        activeColor: Colors.transparent,
-                        inactiveColor: Colors.transparent,
-                        selectedColor: Colors.transparent,
+                        activeColor:
+                            _hasError
+                                ? AppColors.dengerColor
+                                : Colors.transparent,
+                        selectedColor:
+                            _hasError
+                                ? AppColors.dengerColor
+                                : Colors.transparent,
+                        inactiveColor:
+                            _hasError
+                                ? AppColors.dengerColor
+                                : Colors.transparent,
                       ),
                       textStyle: TextStyle(
                         fontSize: 14,
@@ -76,14 +102,32 @@ class _ForgetPasswordPinVerificationScreenState
                       backgroundColor: Colors.transparent,
                       enableActiveFill: true,
                       keyboardType: TextInputType.number,
+                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                       controller: _pinCodeTEController,
                       appContext: context,
+                      onChanged: (value) {
+                        if (_hasError) {
+                          setState(() {
+                            _hasError = false;
+                          });
+                        }
+                      },
                     ),
                     const SizedBox(height: 19),
 
                     ElevatedButton(
-                      onPressed: _onTapSubmitButton,
-                      child: Text("Verify"),
+                      onPressed:
+                          _isSubmitting
+                              ? null
+                              : () async => await _onSubmit(
+                                context,
+                                email,
+                                _pinCodeTEController.text,
+                              ),
+                      child:
+                          _isSubmitting
+                              ? const Spinner()
+                              : const Text("Verify"),
                     ),
 
                     const SizedBox(height: 44),
@@ -127,15 +171,47 @@ class _ForgetPasswordPinVerificationScreenState
     );
   }
 
-  void _onTapSubmitButton() {
-    Navigator.pushReplacementNamed(context, AppRoutes.resetPassword);
-  }
-
   void _onTapSignIn() {
     Navigator.pushNamedAndRemoveUntil(
       context,
       AppRoutes.login,
       (route) => false,
     );
+  }
+
+  Future<void> _onSubmit(
+    BuildContext context,
+    String email,
+    String code,
+  ) async {
+    if (code.trim().length < 6) {
+      _triggerError();
+      return;
+    }
+
+    setState(() => _isSubmitting = true);
+
+    final response = await NetworkClient.getRequest(
+      url: Urls.recoverVerifyOtp(email, code),
+    );
+
+    if (!context.mounted) return;
+
+    setState(() => _isSubmitting = false);
+
+    if (response.isSuccess) {
+      Navigator.pushReplacementNamed(
+        context,
+        AppRoutes.resetPassword,
+        arguments: {"email": email, "code": code},
+      );
+    } else {
+      _triggerError();
+    }
+  }
+
+  void _triggerError() {
+    _errorController.add(ErrorAnimationType.shake);
+    setState(() => _hasError = true);
   }
 }

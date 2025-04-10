@@ -1,8 +1,13 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:task_manager/data/services/network_client.dart';
+import 'package:task_manager/data/utils/urls.dart';
 import 'package:task_manager/ui/screens/login_screen.dart';
 import 'package:task_manager/ui/utils/app_colors.dart';
+import 'package:task_manager/ui/utils/input_validator.dart';
 import 'package:task_manager/ui/widgets/screen_background.dart';
+import 'package:task_manager/ui/widgets/snack_bar_message.dart';
+import 'package:task_manager/ui/widgets/spiner.dart';
 
 class ResetPasswordScreen extends StatefulWidget {
   const ResetPasswordScreen({super.key});
@@ -16,8 +21,10 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
   final TextEditingController _confirmPasswordTExtController =
       TextEditingController();
   final TextEditingController _passwordTExtController = TextEditingController();
+
   late bool _isPasswordHidden = true;
   late bool _isConfirmPasswordHidden = true;
+  late bool _isLoading = false;
 
   @override
   void dispose() {
@@ -55,10 +62,12 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                     TextFormField(
                       textInputAction: TextInputAction.next,
                       obscureText: _isPasswordHidden,
+                      validator: InputValidator.validatePassword,
                       controller: _passwordTExtController,
                       style: TextStyle(fontSize: 14),
                       decoration: InputDecoration(
                         hintText: "Password",
+                        prefix: Padding(padding: EdgeInsets.only(left: 16)),
                         suffixIcon: IconButton(
                           onPressed: _onTapPasswordHide,
                           icon: Icon(
@@ -75,11 +84,17 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
 
                     TextFormField(
                       controller: _confirmPasswordTExtController,
+                      validator:
+                          (String? value) =>
+                              InputValidator.validateConfirmPassword(
+                                value,
+                                _passwordTExtController.text,
+                              ),
                       obscureText: _isConfirmPasswordHidden,
                       style: TextStyle(fontSize: 14),
                       decoration: InputDecoration(
                         hintText: "Confirm Password",
-
+                        prefix: Padding(padding: EdgeInsets.only(left: 16)),
                         suffixIcon: IconButton(
                           onPressed: _onTapConfirmPasswordHide,
                           icon: Icon(
@@ -95,8 +110,9 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                     const SizedBox(height: 18),
 
                     ElevatedButton(
-                      onPressed: _onTapSubmitButton,
-                      child: Text("Confirm"),
+                      onPressed: _isLoading ? null : _onTapSubmitButton,
+                      child:
+                          _isLoading ? const Spinner() : const Text("Confirm"),
                     ),
 
                     const SizedBox(height: 44),
@@ -153,11 +169,10 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
   }
 
   void _onTapSubmitButton() {
-    Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(builder: (context) => const LoginScreen()),
-      (route) => false,
-    );
+    if (_formKey.currentState!.validate()) {
+      _onSubmitPassword();
+    }
+    return;
   }
 
   void _onTapSignIn() {
@@ -166,5 +181,37 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
       MaterialPageRoute(builder: (context) => const LoginScreen()),
       (route) => false,
     );
+  }
+
+  Future<void> _onSubmitPassword() async {
+    late Map<String, String> argumentData =
+        ModalRoute.of(context)?.settings.arguments! as Map<String, String>;
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    NetworkResponse response = await NetworkClient.postRequest(
+      url: Urls.resetRecoverPassword,
+      body: {
+        "email": argumentData["email"],
+        "OTP": argumentData["code"],
+        "password": _passwordTExtController.text,
+      },
+    );
+
+    setState(() {
+      _isLoading = false;
+    });
+
+    if (!mounted) return;
+
+    response.isSuccess
+        ? Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => const LoginScreen()),
+          (route) => false,
+        )
+        : showSnackBarMessage(context, message: response.errorMessage);
   }
 }

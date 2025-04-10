@@ -7,4 +7,10 @@ class Urls {
   static const profileDetails = "$_baseUrl/ProfileDetails";
   static String recoverVerifyEmail(String email) =>
       "$_baseUrl/RecoverVerifyEmail/$email";
+
+  static String recoverVerifyOtp(String email, String pin) =>
+      "$_baseUrl/RecoverVerifyOtp/$email/$pin";
+
+  static String resetRecoverPassword = "$_baseUrl/RecoverResetPassword";
+
 }
