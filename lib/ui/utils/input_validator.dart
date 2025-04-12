@@ -55,4 +55,11 @@ class InputValidator {
     }
     return null;
   }
+
+  static String? validateTaskTitle(String? value) {
+    if (value?.trim().isEmpty ?? true) {
+      return "Subject can't be empty";
+    }
+    return null;
+  }
 }

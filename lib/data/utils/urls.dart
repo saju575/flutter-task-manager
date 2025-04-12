@@ -5,6 +5,7 @@ class Urls {
   static const register = "$_baseUrl/Registration";
   static const updateProfile = "$_baseUrl/ProfileUpdate";
   static const profileDetails = "$_baseUrl/ProfileDetails";
+  static const createTask = '$_baseUrl/createTask';
   static String recoverVerifyEmail(String email) =>
       "$_baseUrl/RecoverVerifyEmail/$email";
 
@@ -12,5 +13,4 @@ class Urls {
       "$_baseUrl/RecoverVerifyOtp/$email/$pin";
 
   static String resetRecoverPassword = "$_baseUrl/RecoverResetPassword";
-
 }
