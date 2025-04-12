@@ -50,4 +50,16 @@ class AuthController {
     token = null;
     userModel = null;
   }
+
+  static Future<void> setUserInformation({
+    required Map<String, dynamic> newUser,
+  }) async {
+    Map<String, dynamic> newUserJSON = {...userModel!.toJson(), ...newUser};
+    UserModel newUserModel = UserModel.fromJson(newUserJSON);
+    await SharedPrefs.setString(
+      _userDataKey,
+      jsonEncode(newUserModel.toJson()),
+    );
+    userModel = newUserModel;
+  }
 }

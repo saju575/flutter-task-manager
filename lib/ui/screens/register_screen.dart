@@ -6,6 +6,7 @@ import 'package:task_manager/data/utils/urls.dart';
 import 'package:task_manager/ui/routes/app_routes.dart';
 import 'package:task_manager/ui/utils/app_colors.dart';
 import 'package:task_manager/ui/utils/input_validator.dart';
+import 'package:task_manager/ui/widgets/password_visbility_icon.dart';
 import 'package:task_manager/ui/widgets/screen_background.dart';
 import 'package:task_manager/ui/widgets/snack_bar_message.dart';
 
@@ -81,7 +82,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         prefix: Padding(padding: EdgeInsets.only(left: 16)),
                       ),
                       autovalidateMode: AutovalidateMode.onUserInteraction,
-                      validator: _validateFirstName,
+                      validator: InputValidator.validateFirstName,
                     ),
 
                     const SizedBox(height: 13),
@@ -94,7 +95,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         prefix: Padding(padding: EdgeInsets.only(left: 16)),
                       ),
                       autovalidateMode: AutovalidateMode.onUserInteraction,
-                      validator: _validateLastName,
+                      validator: InputValidator.validateLastName,
                     ),
 
                     const SizedBox(height: 13),
@@ -110,7 +111,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         prefix: Padding(padding: EdgeInsets.only(left: 16)),
                       ),
 
-                      validator: _validatePhone,
+                      validator: InputValidator.validatePhone,
                     ),
 
                     const SizedBox(height: 13),
@@ -122,14 +123,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       style: const TextStyle(fontSize: 14),
                       decoration: InputDecoration(
                         hintText: "Password",
-                        suffixIcon: IconButton(
-                          onPressed: _onTapPasswordHide,
-                          icon: Icon(
-                            _isPasswordHidden
-                                ? Icons.visibility
-                                : Icons.visibility_off,
-                            color: AppColors.textColor,
-                          ),
+                        suffixIcon: PasswordVisbilityIcon(
+                          isPasswordHidden: _isPasswordHidden,
+                          onTapPasswordHide: _onTapPasswordHide,
                         ),
                         prefix: const Padding(
                           padding: EdgeInsets.only(left: 16),
@@ -194,30 +190,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
         ),
       ),
     );
-  }
-
-  String? _validatePhone(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Phone number is required';
-    }
-    if (value.length < 10 || value.length > 15) {
-      return 'Enter a valid phone number (10-15 digits)';
-    }
-    return null;
-  }
-
-  String? _validateFirstName(String? value) {
-    if (value?.trim().isEmpty ?? true) {
-      return "First Name is required";
-    }
-    return null;
-  }
-
-  String? _validateLastName(String? value) {
-    if (value?.trim().isEmpty ?? true) {
-      return "Last Name is required";
-    }
-    return null;
   }
 
   void _onTapPasswordHide() {

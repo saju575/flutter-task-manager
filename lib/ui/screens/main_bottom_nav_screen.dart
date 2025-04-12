@@ -27,6 +27,7 @@ class _MainBottomNavScreenState extends State<MainBottomNavScreen> {
       appBar: const TaskManagerAppBar(),
 
       bottomNavigationBar: NavigationBar(
+        height: 58,
         selectedIndex: _selectedIndex,
         onDestinationSelected: (index) {
           setState(() {

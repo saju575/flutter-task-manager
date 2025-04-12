@@ -31,4 +31,28 @@ class InputValidator {
     }
     return null;
   }
+
+  static String? validatePhone(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Phone number is required';
+    }
+    if (value.length < 10 || value.length > 15) {
+      return 'Enter a valid phone number (10-15 digits)';
+    }
+    return null;
+  }
+
+  static String? validateFirstName(String? value) {
+    if (value?.trim().isEmpty ?? true) {
+      return "First Name is required";
+    }
+    return null;
+  }
+
+  static String? validateLastName(String? value) {
+    if (value?.trim().isEmpty ?? true) {
+      return "Last Name is required";
+    }
+    return null;
+  }
 }
