@@ -3,10 +3,15 @@ import 'package:logger/logger.dart';
 class NetworkLogger {
   static final Logger _logger = Logger();
 
-  static void preRequestLog(String url, {Map<String, dynamic>? body}) {
+  static void preRequestLog(
+    String url, {
+    Map<String, dynamic>? body,
+    Map<String, dynamic>? headers,
+  }) {
     _logger.i(
       'URL=> $url\n'
-      'Body=> $body',
+      'Body=> $body\n'
+      'Headers=> $headers',
     );
   }
 

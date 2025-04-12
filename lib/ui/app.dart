@@ -4,11 +4,13 @@ import 'package:task_manager/ui/utils/app_colors.dart';
 
 class TaskManagerApp extends StatelessWidget {
   const TaskManagerApp({super.key});
-
+  static final GlobalKey<NavigatorState> navigatorKey =
+      GlobalKey<NavigatorState>();
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
+      navigatorKey: navigatorKey,
       routes: AppRoutes.routes,
       initialRoute: AppRoutes.splash,
 

@@ -22,16 +22,12 @@ class _MainBottomNavScreenState extends State<MainBottomNavScreen> {
   ];
   @override
   Widget build(BuildContext context) {
-    TextTheme textTheme = Theme.of(context).textTheme;
     return Scaffold(
       body: screens[_selectedIndex],
-      appBar: TaskManagerAppBar(
-        textTheme: textTheme,
-        name: "User Name",
-        gmail: "0lGKo@example.com",
-      ),
+      appBar: const TaskManagerAppBar(),
 
       bottomNavigationBar: NavigationBar(
+        height: 58,
         selectedIndex: _selectedIndex,
         onDestinationSelected: (index) {
           setState(() {

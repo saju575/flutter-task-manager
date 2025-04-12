@@ -1,22 +1,3 @@
-// class UserModel {
-//   late final String id;
-//   late final String email;
-//   late final String firstName;
-//   late final String lastName;
-//   late final String mobile;
-//   late final String createdDate;
-
-//   // Name constructor
-//   UserModel.fromJson(Map<String, dynamic> jsonData) {
-//     id = jsonData['_id'];
-//     email = jsonData['email'];
-//     firstName = jsonData['firstName'];
-//     lastName = jsonData['lastName'];
-//     mobile = jsonData['mobile'];
-//     createdDate = jsonData['createdDate'];
-//   }
-// }
-
 class UserModel {
   final String id;
   final String email;
@@ -24,6 +5,7 @@ class UserModel {
   final String lastName;
   final String mobile;
   final String createdDate;
+  final String? photo;
 
   UserModel({
     required this.id,
@@ -32,6 +14,7 @@ class UserModel {
     required this.lastName,
     required this.mobile,
     required this.createdDate,
+    this.photo,
   });
 
   factory UserModel.fromJson(Map<String, dynamic> jsonData) {
@@ -42,6 +25,7 @@ class UserModel {
       lastName: jsonData['lastName'] ?? "",
       mobile: jsonData['mobile'] ?? "",
       createdDate: jsonData['createdDate'] ?? "",
+      photo: jsonData['photo'] ?? "",
     );
   }
 
@@ -53,6 +37,9 @@ class UserModel {
       'lastName': lastName,
       'mobile': mobile,
       'createdDate': createdDate,
+      "photo": photo,
     };
   }
+
+  String get fullName => '$firstName $lastName';
 }

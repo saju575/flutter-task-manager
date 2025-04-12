@@ -12,13 +12,13 @@ class AuthController {
 
   static Future<void> saveUserInformation(
     String accesToken,
-    UserModel userModel,
+    UserModel userData,
   ) async {
     await SharedPrefs.setString(_tokenKey, accesToken);
-    await SharedPrefs.setString(_userDataKey, jsonEncode(userModel.toJson()));
+    await SharedPrefs.setString(_userDataKey, jsonEncode(userData.toJson()));
 
     token = accesToken;
-    userModel = userModel;
+    userModel = userData;
   }
 
   static Future<void> getUserInformation() async {
@@ -33,5 +33,33 @@ class AuthController {
       userModel = saveUserModel;
     }
     token = accesToken;
+  }
+
+  //Check if user is logged in or not
+  static Future<bool> checkIfUserLoggedIn() async {
+    String? token = SharedPrefs.getString(_tokenKey);
+    if (token != null) {
+      await getUserInformation();
+      return true;
+    }
+    return false;
+  }
+
+  static Future<void> clearUserData() async {
+    await SharedPrefs.clear();
+    token = null;
+    userModel = null;
+  }
+
+  static Future<void> setUserInformation({
+    required Map<String, dynamic> newUser,
+  }) async {
+    Map<String, dynamic> newUserJSON = {...userModel!.toJson(), ...newUser};
+    UserModel newUserModel = UserModel.fromJson(newUserJSON);
+    await SharedPrefs.setString(
+      _userDataKey,
+      jsonEncode(newUserModel.toJson()),
+    );
+    userModel = newUserModel;
   }
 }
