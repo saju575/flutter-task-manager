@@ -37,7 +37,11 @@ class NetworkClient {
 
       Response response = await get(uri, headers: headers);
 
-      NetworkLogger.postRequestLog(url, response.statusCode);
+      NetworkLogger.postRequestLog(
+        url,
+        response.statusCode,
+        responseBody: response.body,
+      );
       final decodedJson = jsonDecode(response.body);
       if (response.statusCode == 200) {
         return NetworkResponse(

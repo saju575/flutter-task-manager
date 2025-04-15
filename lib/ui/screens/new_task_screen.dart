@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:task_manager/data/enums/task_status.dart';
+import 'package:task_manager/data/models/task_list_model.dart';
+import 'package:task_manager/data/models/task_model.dart';
+import 'package:task_manager/data/services/network_client.dart';
+import 'package:task_manager/data/utils/urls.dart';
+import 'package:task_manager/ui/controllers/task_controller.dart';
 import 'package:task_manager/ui/routes/app_routes.dart';
-import 'package:task_manager/ui/utils/app_colors.dart';
 import 'package:task_manager/ui/widgets/screen_background.dart';
 import 'package:task_manager/ui/widgets/task_card.dart';
 import 'package:task_manager/ui/widgets/task_manager_status_card.dart';
@@ -13,6 +18,17 @@ class NewTaskScreen extends StatefulWidget {
 }
 
 class _NewTaskScreenState extends State<NewTaskScreen> {
+  late List<TaskModel> _taskListData = [];
+  late bool _isFetchingTaskList = false;
+  late bool _isError = false;
+  late bool _isInitialFetch = false;
+  @override
+  void initState() {
+    super.initState();
+    _getTaskStatusSummery();
+    _initialFetchTaskList();
+  }
+
   @override
   Widget build(BuildContext context) {
     TextTheme textTheme = Theme.of(context).textTheme;
@@ -21,13 +37,16 @@ class _NewTaskScreenState extends State<NewTaskScreen> {
       body: ScreenBackground(
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 9, horizontal: 12),
-          child: CustomScrollView(
-            scrollBehavior: ScrollBehavior().copyWith(scrollbars: false),
-            slivers: [
-              SliverToBoxAdapter(child: _buildSummarySection(textTheme)),
-              const SliverToBoxAdapter(child: SizedBox(height: 9)),
-              _newTaskList(textTheme),
-            ],
+          child: RefreshIndicator(
+            onRefresh: _refreshTaskList,
+            child: CustomScrollView(
+              scrollBehavior: ScrollBehavior().copyWith(scrollbars: false),
+              slivers: [
+                SliverToBoxAdapter(child: _buildSummarySection(textTheme)),
+                const SliverToBoxAdapter(child: SizedBox(height: 9)),
+                _newTaskList(textTheme),
+              ],
+            ),
           ),
         ),
       ),
@@ -39,19 +58,22 @@ class _NewTaskScreenState extends State<NewTaskScreen> {
   }
 
   Widget _newTaskList(TextTheme textTheme) {
-    return SliverList(
-      delegate: SliverChildBuilderDelegate(
-        (context, index) => TaskCard(
-          textTheme: textTheme,
-          title: "Task Title",
-          description: "Description",
-          date: "01/01/2023",
-          status: "New",
-          statusBgColor: AppColors.primaryColor,
+    if (_isInitialFetch && _isFetchingTaskList) {
+      return SliverFillRemaining(
+        child: Center(child: CircularProgressIndicator()),
+      );
+    } else if (_isError) {
+      return SliverFillRemaining(
+        child: Center(child: Text('Error fetching task list')),
+      );
+    } else {
+      return SliverList(
+        delegate: SliverChildBuilderDelegate(
+          (context, index) => TaskCard(task: _taskListData[index]),
+          childCount: _taskListData.length,
         ),
-        childCount: 10,
-      ),
-    );
+      );
+    }
   }
 
   Widget _buildSummarySection(TextTheme textTheme) {
@@ -60,22 +82,22 @@ class _NewTaskScreenState extends State<NewTaskScreen> {
       children: [
         TaskManagerStatusCard(
           textTheme: textTheme,
-          count: 3,
+          count: TaskController.taskStatusSummery?.totalNewTasks ?? 0,
           title: "New Task",
         ),
         TaskManagerStatusCard(
           textTheme: textTheme,
-          count: 3,
+          count: TaskController.taskStatusSummery?.totalCompletedTasks ?? 0,
           title: "Completed",
         ),
         TaskManagerStatusCard(
           textTheme: textTheme,
-          count: 6,
+          count: TaskController.taskStatusSummery?.totalProgressTasks ?? 0,
           title: "Progress",
         ),
         TaskManagerStatusCard(
           textTheme: textTheme,
-          count: 9,
+          count: TaskController.taskStatusSummery?.totalCancelledTasks ?? 0,
           title: "Cancelled",
         ),
       ],
@@ -84,5 +106,43 @@ class _NewTaskScreenState extends State<NewTaskScreen> {
 
   void _onTapAddTaskButton() {
     Navigator.pushNamed(context, AppRoutes.addNewTask);
+  }
+
+  Future<void> _getTaskStatusSummery() async {
+    await TaskController.getTaskStatusSummery();
+    setState(() {});
+  }
+
+  Future<void> _initialFetchTaskList() async {
+    setState(() {
+      _isError = false;
+      _isInitialFetch = true;
+      _isFetchingTaskList = true;
+    });
+    await _getTaskList();
+    setState(() {
+      _isFetchingTaskList = false;
+      _isInitialFetch = false;
+    });
+  }
+
+  Future<void> _getTaskList() async {
+    NetworkResponse response = await NetworkClient.getRequest(
+      url: Urls.getLaskListByStatus(TaskStatus.newTask.label),
+      token: true,
+    );
+    if (response.isSuccess) {
+      _taskListData = TaskListModel.fromJson(response.data).data;
+    } else {
+      _isError = true;
+    }
+  }
+
+  Future<void> _refreshTaskList() async {
+    setState(() {
+      _isError = false;
+    });
+    await _getTaskList();
+    await _getTaskStatusSummery();
   }
 }

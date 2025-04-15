@@ -77,7 +77,7 @@ class TaskManagerAppBarState extends State<TaskManagerAppBar> {
                 onConfirm: () => _onTapLogout(context),
               ),
           icon: Icon(
-            Icons.login_outlined,
+            Icons.logout_outlined,
             color: Colors.red.shade400,
             size: 24,
           ),

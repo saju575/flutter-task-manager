@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:task_manager/ui/screens/add_new_task_screen.dart';
-import 'package:task_manager/ui/screens/cancelled_screen.dart';
+import 'package:task_manager/ui/screens/canceled_screen.dart';
 import 'package:task_manager/ui/screens/completed_screen.dart';
 import 'package:task_manager/ui/screens/forget_password_pin_verification_screen.dart';
 import 'package:task_manager/ui/screens/forget_password_verify_email_screen.dart';
@@ -43,7 +43,7 @@ class AppRoutes {
     updateProfile: (context) => const UpdateProfileScreen(),
     addNewTask: (context) => const AddNewTaskScreen(),
     newTasks: (context) => const NewTaskScreen(),
-    cancelTasks: (context) => const CancelledScreen(),
+    cancelTasks: (context) => const CanceledScreen(),
     completedTasks: (context) => const CompletedScreen(),
     progressTasks: (context) => const ProgressScreen(),
   };
