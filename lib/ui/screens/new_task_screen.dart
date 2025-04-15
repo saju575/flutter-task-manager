@@ -6,6 +6,7 @@ import 'package:task_manager/data/services/network_client.dart';
 import 'package:task_manager/data/utils/urls.dart';
 import 'package:task_manager/ui/controllers/task_controller.dart';
 import 'package:task_manager/ui/routes/app_routes.dart';
+import 'package:task_manager/ui/widgets/empty_placeholder.dart';
 import 'package:task_manager/ui/widgets/screen_background.dart';
 import 'package:task_manager/ui/widgets/task_card.dart';
 import 'package:task_manager/ui/widgets/task_manager_status_card.dart';
@@ -64,7 +65,13 @@ class _NewTaskScreenState extends State<NewTaskScreen> {
       );
     } else if (_isError) {
       return SliverFillRemaining(
-        child: Center(child: Text('Error fetching task list')),
+        child: Center(
+          child: EmptyPlaceholder(message: "Error fetching task list"),
+        ),
+      );
+    } else if (_taskListData.isEmpty) {
+      return SliverFillRemaining(
+        child: Center(child: EmptyPlaceholder(message: "No new task found")),
       );
     } else {
       return SliverList(
