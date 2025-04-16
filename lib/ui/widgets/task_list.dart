@@ -3,11 +3,12 @@ import 'package:task_manager/data/models/task_list_model.dart';
 import 'package:task_manager/data/models/task_model.dart';
 import 'package:task_manager/data/services/network_client.dart';
 import 'package:task_manager/data/utils/urls.dart';
+import 'package:task_manager/ui/widgets/base_task.dart';
 import 'package:task_manager/ui/widgets/empty_placeholder.dart';
 import 'package:task_manager/ui/widgets/spiner.dart';
 import 'package:task_manager/ui/widgets/task_card.dart';
 
-class TaskList extends StatefulWidget {
+class TaskList extends BaseTask {
   final String status;
   final String? errorMessage;
   final String? emptyDataMessage;
@@ -23,7 +24,7 @@ class TaskList extends StatefulWidget {
   State<TaskList> createState() => _TaskListState();
 }
 
-class _TaskListState extends State<TaskList> {
+class _TaskListState extends BaseTaskState<TaskList> {
   late List<TaskModel> _taskListData = [];
   late bool _isFetchingTaskList = false;
   late bool _isError = false;
@@ -38,6 +39,12 @@ class _TaskListState extends State<TaskList> {
   @override
   Widget build(BuildContext context) {
     return _buildTaskList();
+  }
+
+  @override
+  Future<void> onRefreshOnReturn() async {
+    await _initialFetchTaskList();
+    print("onRefreshOnReturn");
   }
 
   Widget _buildTaskList() {

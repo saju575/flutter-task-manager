@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:task_manager/ui/routes/app_routes.dart';
 import 'package:task_manager/ui/utils/app_colors.dart';
 
+final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
+
 class TaskManagerApp extends StatelessWidget {
   const TaskManagerApp({super.key});
   static final GlobalKey<NavigatorState> navigatorKey =
@@ -13,6 +15,7 @@ class TaskManagerApp extends StatelessWidget {
       navigatorKey: navigatorKey,
       routes: AppRoutes.routes,
       initialRoute: AppRoutes.splash,
+      navigatorObservers: [routeObserver],
 
       theme: ThemeData(
         primaryColor: AppColors.primaryColor, // Primary color of the app

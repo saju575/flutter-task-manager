@@ -6,19 +6,20 @@ import 'package:task_manager/data/services/network_client.dart';
 import 'package:task_manager/data/utils/urls.dart';
 import 'package:task_manager/ui/controllers/task_controller.dart';
 import 'package:task_manager/ui/routes/app_routes.dart';
+import 'package:task_manager/ui/widgets/base_task.dart';
 import 'package:task_manager/ui/widgets/empty_placeholder.dart';
 import 'package:task_manager/ui/widgets/screen_background.dart';
 import 'package:task_manager/ui/widgets/task_card.dart';
 import 'package:task_manager/ui/widgets/task_manager_status_card.dart';
 
-class NewTaskScreen extends StatefulWidget {
+class NewTaskScreen extends BaseTask {
   const NewTaskScreen({super.key});
 
   @override
   State<NewTaskScreen> createState() => _NewTaskScreenState();
 }
 
-class _NewTaskScreenState extends State<NewTaskScreen> {
+class _NewTaskScreenState extends BaseTaskState<NewTaskScreen> {
   late List<TaskModel> _taskListData = [];
   late bool _isFetchingTaskList = false;
   late bool _isError = false;
@@ -56,6 +57,11 @@ class _NewTaskScreenState extends State<NewTaskScreen> {
         child: const Icon(Icons.add),
       ),
     );
+  }
+
+  @override
+  Future<void> onRefreshOnReturn() async {
+    await Future.wait([_initialFetchTaskList(), _getTaskStatusSummery()]);
   }
 
   Widget _newTaskList(TextTheme textTheme) {
@@ -149,7 +155,6 @@ class _NewTaskScreenState extends State<NewTaskScreen> {
     setState(() {
       _isError = false;
     });
-    await _getTaskList();
-    await _getTaskStatusSummery();
+    await Future.wait([_initialFetchTaskList(), _getTaskStatusSummery()]);
   }
 }
