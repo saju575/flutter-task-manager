@@ -7,6 +7,7 @@ import 'package:task_manager/data/utils/urls.dart';
 import 'package:task_manager/ui/controllers/task_controller.dart';
 import 'package:task_manager/ui/routes/app_routes.dart';
 import 'package:task_manager/ui/widgets/base_task.dart';
+import 'package:task_manager/ui/widgets/delete_task.dart';
 import 'package:task_manager/ui/widgets/empty_placeholder.dart';
 import 'package:task_manager/ui/widgets/screen_background.dart';
 import 'package:task_manager/ui/widgets/task_card.dart';
@@ -82,7 +83,15 @@ class _NewTaskScreenState extends BaseTaskState<NewTaskScreen> {
     } else {
       return SliverList(
         delegate: SliverChildBuilderDelegate(
-          (context, index) => TaskCard(task: _taskListData[index]),
+          (silverContext, index) => TaskCard(
+            task: _taskListData[index],
+            onDelete:
+                () => deleteTask(
+                  context: context,
+                  taskId: _taskListData[index].id,
+                  onSuccess: _refreshTaskList,
+                ),
+          ),
           childCount: _taskListData.length,
         ),
       );
@@ -133,10 +142,12 @@ class _NewTaskScreenState extends BaseTaskState<NewTaskScreen> {
       _isFetchingTaskList = true;
     });
     await _getTaskList();
-    setState(() {
-      _isFetchingTaskList = false;
-      _isInitialFetch = false;
-    });
+    if (mounted) {
+      setState(() {
+        _isFetchingTaskList = false;
+        _isInitialFetch = false;
+      });
+    }
   }
 
   Future<void> _getTaskList() async {
@@ -155,6 +166,7 @@ class _NewTaskScreenState extends BaseTaskState<NewTaskScreen> {
     setState(() {
       _isError = false;
     });
-    await Future.wait([_initialFetchTaskList(), _getTaskStatusSummery()]);
+    await Future.wait([_getTaskList(), _getTaskStatusSummery()]);
+    setState(() {});
   }
 }

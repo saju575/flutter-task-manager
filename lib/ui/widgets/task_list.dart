@@ -4,6 +4,7 @@ import 'package:task_manager/data/models/task_model.dart';
 import 'package:task_manager/data/services/network_client.dart';
 import 'package:task_manager/data/utils/urls.dart';
 import 'package:task_manager/ui/widgets/base_task.dart';
+import 'package:task_manager/ui/widgets/delete_task.dart';
 import 'package:task_manager/ui/widgets/empty_placeholder.dart';
 import 'package:task_manager/ui/widgets/spiner.dart';
 import 'package:task_manager/ui/widgets/task_card.dart';
@@ -44,7 +45,6 @@ class _TaskListState extends BaseTaskState<TaskList> {
   @override
   Future<void> onRefreshOnReturn() async {
     await _initialFetchTaskList();
-    print("onRefreshOnReturn");
   }
 
   Widget _buildTaskList() {
@@ -90,7 +90,17 @@ class _TaskListState extends BaseTaskState<TaskList> {
 
   Widget _taskList(TextTheme textTheme) {
     return ListView.separated(
-      itemBuilder: (context, index) => TaskCard(task: _taskListData[index]),
+      itemBuilder:
+          (context, index) => TaskCard(
+            task: _taskListData[index],
+            onDelete: () {
+              deleteTask(
+                context: context,
+                taskId: _taskListData[index].id,
+                onSuccess: _refreshTaskList,
+              );
+            },
+          ),
       separatorBuilder: (context, index) => SizedBox(height: 9),
       itemCount: _taskListData.length,
     );

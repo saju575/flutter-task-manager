@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:task_manager/data/enums/task_status.dart';
 import 'package:task_manager/data/services/network_client.dart';
+import 'package:task_manager/data/services/shared_prefs.dart';
 import 'package:task_manager/data/utils/urls.dart';
 import 'package:task_manager/ui/utils/input_validator.dart';
 import 'package:task_manager/ui/widgets/screen_background.dart';
@@ -32,6 +33,7 @@ class _AddNewTaskScreenState extends State<AddNewTaskScreen> {
 
   @override
   Widget build(BuildContext context) {
+    print("${SharedPrefs.getString("token")}");
     return Scaffold(
       appBar: const TaskManagerAppBar(),
       body: ScreenBackground(

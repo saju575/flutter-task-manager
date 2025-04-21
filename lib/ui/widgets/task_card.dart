@@ -4,8 +4,9 @@ import 'package:task_manager/data/models/task_model.dart';
 import 'package:task_manager/ui/utils/app_colors.dart';
 
 class TaskCard extends StatelessWidget {
-  const TaskCard({super.key, required this.task});
+  const TaskCard({super.key, required this.task, this.onDelete});
   final TaskModel task;
+  final VoidCallback? onDelete;
 
   @override
   Widget build(BuildContext context) {
@@ -85,7 +86,7 @@ class TaskCard extends StatelessWidget {
                     ),
                     SizedBox(width: 10),
                     IconButton(
-                      onPressed: () {},
+                      onPressed: onDelete,
                       icon: Icon(Icons.delete, color: AppColors.primaryColor),
                     ),
                   ],

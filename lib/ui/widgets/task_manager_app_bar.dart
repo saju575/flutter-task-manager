@@ -74,7 +74,9 @@ class TaskManagerAppBarState extends State<TaskManagerAppBar> {
                 message: "Are you sure you want to logout?",
                 confirmText: "Logout",
                 cancelText: "No",
-                onConfirm: () => _onTapLogout(context),
+                onConfirm: () async {
+                  await _onTapLogout(context);
+                },
               ),
           icon: Icon(
             Icons.logout_outlined,
@@ -96,7 +98,6 @@ class TaskManagerAppBarState extends State<TaskManagerAppBar> {
     await AuthController.clearUserData();
 
     if (context.mounted) {
-      Navigator.pop(context);
       Navigator.pushNamedAndRemoveUntil(
         context,
         AppRoutes.login,

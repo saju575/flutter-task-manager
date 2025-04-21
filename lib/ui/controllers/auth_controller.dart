@@ -14,6 +14,7 @@ class AuthController {
     String accesToken,
     UserModel userData,
   ) async {
+    print("accesToken after login $accesToken");
     await SharedPrefs.setString(_tokenKey, accesToken);
     await SharedPrefs.setString(_userDataKey, jsonEncode(userData.toJson()));
 
@@ -24,6 +25,7 @@ class AuthController {
   static Future<void> getUserInformation() async {
     String? accesToken = SharedPrefs.getString(_tokenKey);
     String? savedUserModelString = SharedPrefs.getString(_userDataKey);
+    print("token $accesToken");
 
     if (savedUserModelString != null) {
       UserModel saveUserModel = UserModel.fromJson(
@@ -38,6 +40,7 @@ class AuthController {
   //Check if user is logged in or not
   static Future<bool> checkIfUserLoggedIn() async {
     String? token = SharedPrefs.getString(_tokenKey);
+    print("token after reset $token");
     if (token != null) {
       await getUserInformation();
       return true;
