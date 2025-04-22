@@ -38,7 +38,6 @@ class _TaskListState extends State<TaskList> {
 
   @override
   Widget build(BuildContext context) {
-    print("actually is loading $_isFetchingTaskList $_isInitialFetch");
     return _buildTaskList();
   }
 
