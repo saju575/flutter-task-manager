@@ -17,4 +17,5 @@ class Urls {
 
   static String getLaskListByStatus(String status) =>
       "$_baseUrl/listTaskByStatus/$status";
+  static String deleteTask(String taskId) => "$_baseUrl/deleteTask/$taskId";
 }
