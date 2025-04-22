@@ -23,7 +23,7 @@ class _MainBottomNavScreenState extends State<MainBottomNavScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: IndexedStack(index: _selectedIndex, children: screens),
+      body: screens[_selectedIndex],
       appBar: const TaskManagerAppBar(),
 
       bottomNavigationBar: NavigationBar(

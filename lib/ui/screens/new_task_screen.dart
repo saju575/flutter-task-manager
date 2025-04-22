@@ -6,8 +6,10 @@ import 'package:task_manager/data/services/network_client.dart';
 import 'package:task_manager/data/utils/urls.dart';
 import 'package:task_manager/ui/controllers/task_controller.dart';
 import 'package:task_manager/ui/routes/app_routes.dart';
+import 'package:task_manager/ui/utils/app_colors.dart';
 import 'package:task_manager/ui/widgets/empty_placeholder.dart';
 import 'package:task_manager/ui/widgets/screen_background.dart';
+import 'package:task_manager/ui/widgets/spiner.dart';
 import 'package:task_manager/ui/widgets/task_card.dart';
 import 'package:task_manager/ui/widgets/task_manager_status_card.dart';
 
@@ -61,7 +63,7 @@ class _NewTaskScreenState extends State<NewTaskScreen> {
   Widget _newTaskList(TextTheme textTheme) {
     if (_isInitialFetch && _isFetchingTaskList) {
       return SliverFillRemaining(
-        child: Center(child: CircularProgressIndicator()),
+        child: Center(child: Spinner(size: 24, color: AppColors.primaryColor)),
       );
     } else if (_isError) {
       return SliverFillRemaining(
@@ -149,7 +151,6 @@ class _NewTaskScreenState extends State<NewTaskScreen> {
     setState(() {
       _isError = false;
     });
-    await _getTaskList();
-    await _getTaskStatusSummery();
+    await Future.wait([_getTaskList(), _getTaskStatusSummery()]);
   }
 }

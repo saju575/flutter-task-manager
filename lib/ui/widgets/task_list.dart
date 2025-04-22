@@ -3,6 +3,7 @@ import 'package:task_manager/data/models/task_list_model.dart';
 import 'package:task_manager/data/models/task_model.dart';
 import 'package:task_manager/data/services/network_client.dart';
 import 'package:task_manager/data/utils/urls.dart';
+import 'package:task_manager/ui/utils/app_colors.dart';
 import 'package:task_manager/ui/widgets/empty_placeholder.dart';
 import 'package:task_manager/ui/widgets/spiner.dart';
 import 'package:task_manager/ui/widgets/task_card.dart';
@@ -37,6 +38,7 @@ class _TaskListState extends State<TaskList> {
 
   @override
   Widget build(BuildContext context) {
+    print("actually is loading $_isFetchingTaskList $_isInitialFetch");
     return _buildTaskList();
   }
 
@@ -51,7 +53,7 @@ class _TaskListState extends State<TaskList> {
 
   Widget _buildTaskListContent(TextTheme textTheme) {
     if (_isInitialFetch && _isFetchingTaskList) {
-      return Center(child: const Spinner(size: 20));
+      return Center(child: Spinner(size: 24, color: AppColors.primaryColor));
     } else if (_isError) {
       return ListView(
         children: [
