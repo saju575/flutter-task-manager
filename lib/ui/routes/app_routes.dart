@@ -14,8 +14,8 @@ import 'package:task_manager/ui/screens/splash_screen.dart';
 import 'package:task_manager/ui/screens/update_profile_screen.dart';
 
 class AppRoutes {
-  static const String splash = '/splash';
-  static const String home = '/';
+  static const String splash = '/';
+  static const String home = '/mainBottomNavScreen';
   static const String login = '/login';
   static const String signUp = '/signup';
 
