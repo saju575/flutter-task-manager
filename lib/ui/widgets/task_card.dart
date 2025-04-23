@@ -1,26 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:task_manager/data/enums/task_status.dart';
+import 'package:task_manager/data/models/task_model.dart';
 import 'package:task_manager/ui/utils/app_colors.dart';
+import 'package:task_manager/ui/utils/date_time_utils.dart';
 
 class TaskCard extends StatelessWidget {
-  const TaskCard({
-    super.key,
-    required this.textTheme,
-    required this.title,
-    required this.description,
-    required this.date,
-    required this.status,
-    required this.statusBgColor,
-  });
-
-  final TextTheme textTheme;
-  final String title;
-  final String description;
-  final String date;
-  final String status;
-  final Color statusBgColor;
+  const TaskCard({super.key, required this.task, this.onDelete, this.onEdit});
+  final TaskModel task;
+  final VoidCallback? onDelete;
+  final VoidCallback? onEdit;
 
   @override
   Widget build(BuildContext context) {
+    TextTheme textTheme = Theme.of(context).textTheme;
     return Card(
       color: AppColors.whiteColor,
       elevation: 0,
@@ -32,7 +24,7 @@ class TaskCard extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             Text(
-              title,
+              task.title,
               style: textTheme.bodySmall?.copyWith(
                 color: AppColors.secondaryColor,
               ),
@@ -40,7 +32,7 @@ class TaskCard extends StatelessWidget {
             ),
             SizedBox(height: 4),
             Text(
-              description,
+              task.description,
               style: textTheme.bodySmall?.copyWith(
                 fontSize: 8,
                 color: AppColors.textColor,
@@ -49,7 +41,7 @@ class TaskCard extends StatelessWidget {
             ),
             SizedBox(height: 8),
             Text(
-              "Data: $date",
+              "Data: ${DateTimeUtils.formatFull(task.createdDate)}",
               style: textTheme.bodySmall?.copyWith(
                 fontSize: 8,
                 color: AppColors.textColor,
@@ -74,7 +66,7 @@ class TaskCard extends StatelessWidget {
                   ),
                   child: Center(
                     child: Text(
-                      status,
+                      task.status,
                       style: TextStyle(
                         fontSize: 10, // Adjust text size
                         color: AppColors.whiteColor,
@@ -88,7 +80,7 @@ class TaskCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     IconButton(
-                      onPressed: () {},
+                      onPressed: onEdit,
                       icon: Icon(
                         Icons.edit_note_sharp,
                         color: AppColors.primaryColor,
@@ -96,7 +88,7 @@ class TaskCard extends StatelessWidget {
                     ),
                     SizedBox(width: 10),
                     IconButton(
-                      onPressed: () {},
+                      onPressed: onDelete,
                       icon: Icon(Icons.delete, color: AppColors.primaryColor),
                     ),
                   ],
@@ -107,5 +99,17 @@ class TaskCard extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Color get statusBgColor {
+    if (task.status == TaskStatus.newTask.label) {
+      return AppColors.primaryColor;
+    } else if (task.status == TaskStatus.progress.label) {
+      return AppColors.purpleColor;
+    } else if (task.status == TaskStatus.completed.label) {
+      return AppColors.primaryColor;
+    } else {
+      return AppColors.dengerColor;
+    }
   }
 }

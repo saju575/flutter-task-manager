@@ -37,13 +37,24 @@ class NetworkClient {
 
       Response response = await get(uri, headers: headers);
 
-      NetworkLogger.postRequestLog(url, response.statusCode);
+      NetworkLogger.postRequestLog(
+        url,
+        response.statusCode,
+        responseBody: response.body,
+      );
       final decodedJson = jsonDecode(response.body);
       if (response.statusCode == 200) {
         return NetworkResponse(
           isSuccess: true,
           statusCode: response.statusCode,
           data: decodedJson,
+        );
+      } else if (response.statusCode == 401) {
+        _gotoLoginScreen();
+        return NetworkResponse(
+          isSuccess: false,
+          statusCode: response.statusCode,
+          errorMessage: "Un-authorize user. Please login again.",
         );
       } else {
         String errorMessage = decodedJson['data'] ?? "Something went wrong";

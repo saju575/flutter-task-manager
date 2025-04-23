@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:task_manager/data/enums/task_status.dart';
 import 'package:task_manager/data/services/network_client.dart';
 import 'package:task_manager/data/utils/urls.dart';
 import 'package:task_manager/ui/utils/input_validator.dart';
@@ -114,7 +115,7 @@ class _AddNewTaskScreenState extends State<AddNewTaskScreen> {
     Map<String, String> requestbody = {
       "title": _subjectTExtController.text,
       "description": _descriptionTEController.text,
-      "status": "New",
+      "status": TaskStatus.newTask.label,
     };
 
     setState(() {
