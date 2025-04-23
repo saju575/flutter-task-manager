@@ -7,6 +7,7 @@ import 'package:task_manager/data/utils/urls.dart';
 import 'package:task_manager/ui/controllers/task_controller.dart';
 import 'package:task_manager/ui/routes/app_routes.dart';
 import 'package:task_manager/ui/utils/app_colors.dart';
+import 'package:task_manager/ui/widgets/delete_task.dart';
 import 'package:task_manager/ui/widgets/empty_placeholder.dart';
 import 'package:task_manager/ui/widgets/screen_background.dart';
 import 'package:task_manager/ui/widgets/spiner.dart';
@@ -78,7 +79,15 @@ class _NewTaskScreenState extends State<NewTaskScreen> {
     } else {
       return SliverList(
         delegate: SliverChildBuilderDelegate(
-          (context, index) => TaskCard(task: _taskListData[index]),
+          (context, index) => TaskCard(
+            task: _taskListData[index],
+            onDelete:
+                () => deleteTask(
+                  context: context,
+                  taskId: _taskListData[index].id,
+                  onSuccess: _refreshTaskList,
+                ),
+          ),
           childCount: _taskListData.length,
         ),
       );
