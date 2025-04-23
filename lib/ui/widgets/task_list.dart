@@ -4,10 +4,13 @@ import 'package:task_manager/data/models/task_model.dart';
 import 'package:task_manager/data/services/network_client.dart';
 import 'package:task_manager/data/utils/urls.dart';
 import 'package:task_manager/ui/utils/app_colors.dart';
+import 'package:task_manager/ui/utils/get_task_status.dart';
 import 'package:task_manager/ui/widgets/delete_task.dart';
 import 'package:task_manager/ui/widgets/empty_placeholder.dart';
+import 'package:task_manager/ui/widgets/show_app_bottom_sheet.dart';
 import 'package:task_manager/ui/widgets/spiner.dart';
 import 'package:task_manager/ui/widgets/task_card.dart';
+import 'package:task_manager/ui/widgets/update_task_status.dart';
 
 class TaskList extends StatefulWidget {
   final String status;
@@ -93,6 +96,16 @@ class _TaskListState extends State<TaskList> {
                 context: context,
                 taskId: _taskListData[index].id,
                 onSuccess: _refreshTaskList,
+              );
+            },
+            onEdit: () {
+              showAppBottomSheet(
+                context: context,
+                child: UpdateTaskStatus(
+                  taskId: _taskListData[index].id,
+                  currentStatus: getTaskStatus(_taskListData[index].status),
+                  onSuccess: _refreshTaskList,
+                ),
               );
             },
           ),

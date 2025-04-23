@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:task_manager/data/enums/task_status.dart';
 import 'package:task_manager/data/models/task_model.dart';
 import 'package:task_manager/ui/utils/app_colors.dart';
+import 'package:task_manager/ui/utils/date_time_utils.dart';
 
 class TaskCard extends StatelessWidget {
-  const TaskCard({super.key, required this.task, this.onDelete});
+  const TaskCard({super.key, required this.task, this.onDelete, this.onEdit});
   final TaskModel task;
   final VoidCallback? onDelete;
+  final VoidCallback? onEdit;
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +41,7 @@ class TaskCard extends StatelessWidget {
             ),
             SizedBox(height: 8),
             Text(
-              "Data: ${task.createdDate}",
+              "Data: ${DateTimeUtils.formatFull(task.createdDate)}",
               style: textTheme.bodySmall?.copyWith(
                 fontSize: 8,
                 color: AppColors.textColor,
@@ -78,7 +80,7 @@ class TaskCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     IconButton(
-                      onPressed: () {},
+                      onPressed: onEdit,
                       icon: Icon(
                         Icons.edit_note_sharp,
                         color: AppColors.primaryColor,
