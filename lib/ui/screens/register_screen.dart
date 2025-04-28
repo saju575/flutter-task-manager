@@ -1,8 +1,8 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:task_manager/data/services/network_client.dart';
-import 'package:task_manager/data/utils/urls.dart';
+import 'package:get/get.dart';
+import 'package:task_manager/ui/controllers/register_controller.dart';
 import 'package:task_manager/ui/routes/app_routes.dart';
 import 'package:task_manager/ui/utils/app_colors.dart';
 import 'package:task_manager/ui/utils/input_validator.dart';
@@ -24,9 +24,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController _phoneTEController = TextEditingController();
   final TextEditingController _passwordTEController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  late bool _isPasswordHidden = true;
+  final RegisterController _registerController = Get.find<RegisterController>();
 
-  bool _registrationInProgress = false;
   @override
   void dispose() {
     _emailTEController.dispose();
@@ -116,39 +115,47 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                     const SizedBox(height: 13),
 
-                    TextFormField(
-                      controller: _passwordTEController,
-                      obscureText: _isPasswordHidden,
-                      autovalidateMode: AutovalidateMode.onUserInteraction,
-                      style: const TextStyle(fontSize: 14),
-                      decoration: InputDecoration(
-                        hintText: "Password",
-                        suffixIcon: PasswordVisbilityIcon(
-                          isPasswordHidden: _isPasswordHidden,
-                          onTapPasswordHide: _onTapPasswordHide,
-                        ),
-                        prefix: const Padding(
-                          padding: EdgeInsets.only(left: 16),
-                        ),
-                      ),
-                      validator: InputValidator.validatePassword,
+                    GetBuilder<RegisterController>(
+                      builder:
+                          (controller) => TextFormField(
+                            controller: _passwordTEController,
+                            obscureText: controller.isPasswordHidden,
+                            autovalidateMode:
+                                AutovalidateMode.onUserInteraction,
+                            style: const TextStyle(fontSize: 14),
+                            decoration: InputDecoration(
+                              hintText: "Password",
+                              suffixIcon: PasswordVisbilityIcon(
+                                isPasswordHidden: controller.isPasswordHidden,
+                                onTapPasswordHide:
+                                    controller.togglePasswordVisibility,
+                              ),
+                              prefix: const Padding(
+                                padding: EdgeInsets.only(left: 16),
+                              ),
+                            ),
+                            validator: InputValidator.validatePassword,
+                          ),
                     ),
 
                     const SizedBox(height: 18),
 
-                    ElevatedButton(
-                      onPressed: _onTapSubmitRegister,
-                      child:
-                          _registrationInProgress
-                              ? SizedBox(
-                                height: 16,
-                                width: 16,
-                                child: CircularProgressIndicator(
-                                  color: AppColors.whiteColor,
-                                  strokeWidth: 2,
-                                ),
-                              )
-                              : Icon(Icons.arrow_forward),
+                    GetBuilder<RegisterController>(
+                      builder:
+                          (controller) => ElevatedButton(
+                            onPressed: _onTapSubmitRegister,
+                            child:
+                                controller.registrationInProgress
+                                    ? SizedBox(
+                                      height: 16,
+                                      width: 16,
+                                      child: CircularProgressIndicator(
+                                        color: AppColors.whiteColor,
+                                        strokeWidth: 2,
+                                      ),
+                                    )
+                                    : Icon(Icons.arrow_forward),
+                          ),
                     ),
 
                     const SizedBox(height: 26),
@@ -192,12 +199,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 
-  void _onTapPasswordHide() {
-    setState(() {
-      _isPasswordHidden = !_isPasswordHidden;
-    });
-  }
-
   void _onTapSubmitRegister() {
     if (_formKey.currentState!.validate()) {
       _registerUser();
@@ -205,37 +206,26 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   Future<void> _registerUser() async {
-    setState(() {
-      _registrationInProgress = true;
-    });
-    Map<String, dynamic> requestBody = {
-      "email": _emailTEController.text.trim(),
-      "firstName": _firstNameTEController.text.trim(),
-      "lastName": _lastNameTEController.text.trim(),
-      "mobile": _phoneTEController.text.trim(),
-      "password": _passwordTEController.text,
-    };
-    NetworkResponse response = await NetworkClient.postRequest(
-      url: Urls.register,
-      body: requestBody,
+    final bool isSuccess = await _registerController.register(
+      email: _emailTEController.text.trim(),
+      firstName: _firstNameTEController.text,
+      lastName: _lastNameTEController.text,
+      mobile: _phoneTEController.text.trim(),
+      password: _passwordTEController.text,
     );
-    setState(() {
-      _registrationInProgress = false;
-    });
     if (!mounted) return;
-    showSnackBarMessage(
-      context,
-      message:
-          response.isSuccess
-              ? "User Registered Successfully"
-              : response.errorMessage,
-      isError: !response.isSuccess,
-    );
-    if (response.isSuccess) {
+
+    if (isSuccess) {
       Navigator.pushNamedAndRemoveUntil(
         context,
         AppRoutes.login,
         (route) => false,
+      );
+    } else {
+      showSnackBarMessage(
+        context,
+        message: _registerController.errorMessage!,
+        isError: true,
       );
     }
   }

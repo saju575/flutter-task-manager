@@ -1,9 +1,7 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:task_manager/data/models/login_model.dart';
-import 'package:task_manager/data/services/network_client.dart';
-import 'package:task_manager/data/utils/urls.dart';
-import 'package:task_manager/ui/controllers/auth_controller.dart';
+import 'package:get/get.dart';
+import 'package:task_manager/ui/controllers/login_controller.dart';
 import 'package:task_manager/ui/routes/app_routes.dart';
 import 'package:task_manager/ui/utils/app_colors.dart';
 import 'package:task_manager/ui/utils/input_validator.dart';
@@ -22,8 +20,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _emailTExtController = TextEditingController();
   final TextEditingController _passwordTExtController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  late bool _isPasswordHidden = true;
-  late bool _isLoginInProgress = false;
+  final LoginController _loginController = Get.find<LoginController>();
   @override
   void dispose() {
     _emailTExtController.dispose();
@@ -67,36 +64,48 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
 
                     const SizedBox(height: 13),
-
-                    TextFormField(
-                      controller: _passwordTExtController,
-                      obscureText: _isPasswordHidden,
-                      autovalidateMode: AutovalidateMode.onUserInteraction,
-                      validator: InputValidator.validatePassword,
-                      style: TextStyle(fontSize: 14),
-                      decoration: InputDecoration(
-                        hintText: "Password",
-                        suffixIcon: IconButton(
-                          onPressed: _onTapPasswordHide,
-                          icon: Icon(
-                            _isPasswordHidden
-                                ? Icons.visibility
-                                : Icons.visibility_off,
-                            color: AppColors.textColor,
+                    GetBuilder<LoginController>(
+                      builder:
+                          (controller) => TextFormField(
+                            controller: _passwordTExtController,
+                            obscureText: controller.isPasswordHidden,
+                            autovalidateMode:
+                                AutovalidateMode.onUserInteraction,
+                            validator: InputValidator.validatePassword,
+                            style: TextStyle(fontSize: 14),
+                            decoration: InputDecoration(
+                              hintText: "Password",
+                              suffixIcon: IconButton(
+                                onPressed:
+                                    _loginController.togglePasswordVisibility,
+                                icon: Icon(
+                                  controller.isPasswordHidden
+                                      ? Icons.visibility
+                                      : Icons.visibility_off,
+                                  color: AppColors.textColor,
+                                ),
+                              ),
+                              prefix: Padding(
+                                padding: EdgeInsets.only(left: 16),
+                              ),
+                            ),
                           ),
-                        ),
-                        prefix: Padding(padding: EdgeInsets.only(left: 16)),
-                      ),
                     ),
 
                     const SizedBox(height: 18),
 
-                    ElevatedButton(
-                      onPressed: _isLoginInProgress ? null : _onTapSignInButton,
-                      child:
-                          _isLoginInProgress
-                              ? const Spinner()
-                              : const Icon(Icons.arrow_forward),
+                    GetBuilder<LoginController>(
+                      builder:
+                          (controller) => ElevatedButton(
+                            onPressed:
+                                controller.isLoginInProgress
+                                    ? null
+                                    : _onTapSignInButton,
+                            child:
+                                controller.isLoginInProgress
+                                    ? const Spinner()
+                                    : const Icon(Icons.arrow_forward),
+                          ),
                     ),
                     const SizedBox(height: 73),
 
@@ -151,12 +160,6 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  void _onTapPasswordHide() {
-    setState(() {
-      _isPasswordHidden = !_isPasswordHidden;
-    });
-  }
-
   void _onTapSignInButton() {
     if (_formKey.currentState!.validate()) {
       _signIn();
@@ -164,39 +167,22 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _signIn() async {
-    setState(() {
-      _isLoginInProgress = true;
-    });
-    Map<String, dynamic> requestBody = {
-      "email": _emailTExtController.text.trim(),
-      "password": _passwordTExtController.text,
-    };
-    NetworkResponse response = await NetworkClient.postRequest(
-      url: Urls.login,
-      body: requestBody,
+    final bool isSuccessLogin = await _loginController.signIn(
+      email: _emailTExtController.text.trim(),
+      password: _passwordTExtController.text,
     );
-    setState(() {
-      _isLoginInProgress = false;
-    });
-    if (response.isSuccess) {
-      LoginModel loginModel = LoginModel.fromJson(response.data);
 
-      await AuthController.saveUserInformation(
-        loginModel.token,
-        loginModel.userData!,
-      );
-      if (!mounted) return;
-
+    if (!mounted) return;
+    if (isSuccessLogin) {
       Navigator.pushNamedAndRemoveUntil(
         context,
         AppRoutes.home,
         (predicate) => false,
       );
     } else {
-      if (!mounted) return;
       showSnackBarMessage(
         context,
-        message: response.errorMessage,
+        message: _loginController.errorMessage!,
         isError: true,
       );
     }
