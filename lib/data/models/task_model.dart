@@ -36,4 +36,22 @@ class TaskModel {
     data['createdDate'] = createdDate;
     return data;
   }
+
+  TaskModel copyWith({
+    String? id,
+    String? title,
+    String? description,
+    String? status,
+    String? email,
+    String? createdDate,
+  }) {
+    return TaskModel(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      description: description ?? this.description,
+      status: status ?? this.status,
+      email: email ?? this.email,
+      createdDate: createdDate ?? this.createdDate,
+    );
+  }
 }

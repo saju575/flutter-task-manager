@@ -1,15 +1,14 @@
 import 'dart:async';
-
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
-import 'package:task_manager/data/services/network_client.dart';
-import 'package:task_manager/data/utils/urls.dart';
+import 'package:task_manager/ui/controllers/forget_password_controller.dart';
 import 'package:task_manager/ui/routes/app_routes.dart';
 import 'package:task_manager/ui/utils/app_colors.dart';
 import 'package:task_manager/ui/widgets/screen_background.dart';
 import 'package:task_manager/ui/widgets/spiner.dart';
+import 'package:get/get.dart';
 
 class ForgetPasswordPinVerificationScreen extends StatefulWidget {
   const ForgetPasswordPinVerificationScreen({super.key});
@@ -25,9 +24,8 @@ class _ForgetPasswordPinVerificationScreenState
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final StreamController<ErrorAnimationType> _errorController =
       StreamController<ErrorAnimationType>();
-
-  late bool _hasError = false;
-  late bool _isSubmitting = false;
+  final ForgetPasswordController _forgetPasswordController =
+      Get.find<ForgetPasswordController>();
 
   @override
   void dispose() {
@@ -65,69 +63,75 @@ class _ForgetPasswordPinVerificationScreenState
                     ),
 
                     const SizedBox(height: 18),
-                    PinCodeTextField(
-                      length: 6,
-                      errorAnimationController: _errorController,
-                      cursorColor: AppColors.primaryColor,
-                      obscureText: false,
-                      animationType: AnimationType.fade,
-                      pinTheme: PinTheme(
-                        shape: PinCodeFieldShape.box,
-                        borderRadius: BorderRadius.circular(4),
-                        fieldHeight: 40,
-                        fieldWidth: 40,
-                        activeFillColor: Colors.white,
-                        selectedFillColor: AppColors.whiteColor,
-                        inactiveFillColor: AppColors.whiteColor,
-                        borderWidth: 0,
-                        activeColor:
-                            _hasError
-                                ? AppColors.dengerColor
-                                : Colors.transparent,
-                        selectedColor:
-                            _hasError
-                                ? AppColors.dengerColor
-                                : Colors.transparent,
-                        inactiveColor:
-                            _hasError
-                                ? AppColors.dengerColor
-                                : Colors.transparent,
-                      ),
-                      textStyle: TextStyle(
-                        fontSize: 14,
-                        color: AppColors.secondaryColor,
-                        fontWeight: FontWeight.w600,
-                      ),
-                      animationDuration: Duration(milliseconds: 200),
-                      backgroundColor: Colors.transparent,
-                      enableActiveFill: true,
-                      keyboardType: TextInputType.number,
-                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                      controller: _pinCodeTEController,
-                      appContext: context,
-                      onChanged: (value) {
-                        if (_hasError) {
-                          setState(() {
-                            _hasError = false;
-                          });
-                        }
-                      },
+                    GetBuilder<ForgetPasswordController>(
+                      builder:
+                          (controller) => PinCodeTextField(
+                            length: 6,
+                            errorAnimationController: _errorController,
+                            cursorColor: AppColors.primaryColor,
+                            obscureText: false,
+                            animationType: AnimationType.fade,
+                            pinTheme: PinTheme(
+                              shape: PinCodeFieldShape.box,
+                              borderRadius: BorderRadius.circular(4),
+                              fieldHeight: 40,
+                              fieldWidth: 40,
+                              activeFillColor: AppColors.whiteColor,
+                              selectedFillColor: AppColors.whiteColor,
+                              inactiveFillColor: AppColors.whiteColor,
+                              borderWidth: 0,
+                              activeColor:
+                                  controller.hasErrorOnPinVerification
+                                      ? AppColors.dengerColor
+                                      : Colors.transparent,
+                              selectedColor:
+                                  controller.hasErrorOnPinVerification
+                                      ? AppColors.dengerColor
+                                      : Colors.transparent,
+                              inactiveColor:
+                                  controller.hasErrorOnPinVerification
+                                      ? AppColors.dengerColor
+                                      : Colors.transparent,
+                            ),
+                            textStyle: TextStyle(
+                              fontSize: 14,
+                              color: AppColors.secondaryColor,
+                              fontWeight: FontWeight.w600,
+                            ),
+                            animationDuration: Duration(milliseconds: 200),
+                            backgroundColor: Colors.transparent,
+                            enableActiveFill: true,
+                            keyboardType: TextInputType.number,
+                            inputFormatters: [
+                              FilteringTextInputFormatter.digitsOnly,
+                            ],
+                            controller: _pinCodeTEController,
+                            appContext: context,
+                            onChanged: (value) {
+                              if (controller.hasErrorOnPinVerification) {
+                                controller.hasErrorOnPinVerification = false;
+                              }
+                            },
+                          ),
                     ),
                     const SizedBox(height: 19),
 
-                    ElevatedButton(
-                      onPressed:
-                          _isSubmitting
-                              ? null
-                              : () async => await _onSubmit(
-                                context,
-                                email,
-                                _pinCodeTEController.text,
-                              ),
-                      child:
-                          _isSubmitting
-                              ? const Spinner()
-                              : const Text("Verify"),
+                    GetBuilder<ForgetPasswordController>(
+                      builder:
+                          (controller) => ElevatedButton(
+                            onPressed:
+                                controller.isPinVerifierLoading
+                                    ? null
+                                    : () async => await _onSubmit(
+                                      context,
+                                      email,
+                                      _pinCodeTEController.text,
+                                    ),
+                            child:
+                                controller.isPinVerifierLoading
+                                    ? const Spinner()
+                                    : const Text("Verify"),
+                          ),
                     ),
 
                     const SizedBox(height: 44),
@@ -189,17 +193,14 @@ class _ForgetPasswordPinVerificationScreenState
       return;
     }
 
-    setState(() => _isSubmitting = true);
-
-    final response = await NetworkClient.getRequest(
-      url: Urls.recoverVerifyOtp(email, code),
+    final response = await _forgetPasswordController.recoverVerifyPin(
+      email: email,
+      pin: code,
     );
 
     if (!context.mounted) return;
 
-    setState(() => _isSubmitting = false);
-
-    if (response.isSuccess) {
+    if (response) {
       Navigator.pushReplacementNamed(
         context,
         AppRoutes.resetPassword,
@@ -212,6 +213,6 @@ class _ForgetPasswordPinVerificationScreenState
 
   void _triggerError() {
     _errorController.add(ErrorAnimationType.shake);
-    setState(() => _hasError = true);
+    _forgetPasswordController.hasErrorOnPinVerification = true;
   }
 }

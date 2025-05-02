@@ -8,4 +8,8 @@ class TaskStatusCountModel {
       TaskStatusCountModel(id: json["_id"] ?? "", sum: json["sum"] ?? "");
 
   Map<String, dynamic> toJson() => {"id": id, "sum": sum};
+
+  TaskStatusCountModel copyWith({String? id, int? sum}) {
+    return TaskStatusCountModel(id: id ?? this.id, sum: sum ?? this.sum);
+  }
 }

@@ -4,15 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:task_manager/data/models/user_model.dart';
-import 'package:task_manager/data/services/network_client.dart';
-import 'package:task_manager/data/utils/urls.dart';
-import 'package:task_manager/ui/controllers/auth_controller.dart';
+import 'package:task_manager/ui/controllers/update_profile_controller.dart';
 import 'package:task_manager/ui/utils/input_validator.dart';
 import 'package:task_manager/ui/widgets/password_visbility_icon.dart';
 import 'package:task_manager/ui/widgets/screen_background.dart';
 import 'package:task_manager/ui/widgets/snack_bar_message.dart';
 import 'package:task_manager/ui/widgets/spiner.dart';
 import 'package:task_manager/ui/widgets/task_manager_app_bar.dart';
+import 'package:get/get.dart';
 
 class UpdateProfileScreen extends StatefulWidget {
   const UpdateProfileScreen({super.key});
@@ -32,17 +31,14 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
       GlobalKey<TaskManagerAppBarState>();
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-
+  final UpdateProfileController _updateProfileController =
+      Get.find<UpdateProfileController>();
   final ImagePicker _picker = ImagePicker();
-  XFile? _pickedImage;
-
-  late bool isLoading = false;
-  late bool _isPasswordHidden = true;
 
   @override
   void initState() {
     super.initState();
-    UserModel? userModel = AuthController.userModel;
+    UserModel? userModel = _updateProfileController.userData;
     _emailTEController.text = userModel?.email ?? "";
     _firstNameTEController.text = userModel?.firstName ?? "";
     _lastNameTEController.text = userModel?.lastName ?? "";
@@ -137,27 +133,45 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
 
                     const SizedBox(height: 13),
 
-                    TextFormField(
-                      textInputAction: TextInputAction.done,
-                      controller: _passwordTEController,
-                      autovalidateMode: AutovalidateMode.onUserInteraction,
-                      obscureText: _isPasswordHidden,
-                      style: TextStyle(fontSize: 14),
-                      decoration: InputDecoration(
-                        hintText: "Set New Password",
-                        prefix: Padding(padding: EdgeInsets.only(left: 16)),
-                        suffixIcon: PasswordVisbilityIcon(
-                          isPasswordHidden: _isPasswordHidden,
-                          onTapPasswordHide: _onTapPasswordHide,
-                        ),
-                      ),
+                    GetBuilder<UpdateProfileController>(
+                      builder:
+                          (controller) => TextFormField(
+                            textInputAction: TextInputAction.done,
+                            controller: _passwordTEController,
+                            autovalidateMode:
+                                AutovalidateMode.onUserInteraction,
+                            obscureText: controller.isPasswordHidden,
+                            style: TextStyle(fontSize: 14),
+                            decoration: InputDecoration(
+                              hintText: "Set New Password",
+                              prefix: Padding(
+                                padding: EdgeInsets.only(left: 16),
+                              ),
+                              suffixIcon: PasswordVisbilityIcon(
+                                isPasswordHidden: controller.isPasswordHidden,
+                                onTapPasswordHide: () {
+                                  controller.isPasswordHidden =
+                                      !controller.isPasswordHidden;
+                                },
+                              ),
+                            ),
+                          ),
                     ),
 
                     const SizedBox(height: 16),
 
-                    ElevatedButton(
-                      onPressed: isLoading ? null : _onTapUpdate,
-                      child: isLoading ? const Spinner() : const Text("Update"),
+                    GetBuilder<UpdateProfileController>(
+                      builder:
+                          (controller) => ElevatedButton(
+                            onPressed:
+                                controller.isUpdatingProfile
+                                    ? null
+                                    : _onTapUpdate,
+                            child:
+                                controller.isUpdatingProfile
+                                    ? const Spinner()
+                                    : const Text("Update"),
+                          ),
                     ),
                   ],
                 ),
@@ -172,17 +186,22 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
   Widget _avatar() {
     return GestureDetector(
       onTap: _pickImage,
-      child: CircleAvatar(
-        radius: 40,
-        backgroundImage:
-            _pickedImage != null
-                ? FileImage(File(_pickedImage!.path))
-                : (AuthController.userModel?.photo != null &&
-                    AuthController.userModel?.photo != "")
-                ? MemoryImage(
-                  base64Decode(AuthController.userModel?.photo ?? ""),
-                )
-                : null,
+      child: GetBuilder<UpdateProfileController>(
+        builder:
+            (controller) => CircleAvatar(
+              radius: 40,
+              backgroundImage:
+                  controller.pickedImage != null
+                      ? FileImage(File(controller.pickedImage!.path))
+                      : (_updateProfileController.userData?.photo != null &&
+                          _updateProfileController.userData?.photo != "")
+                      ? MemoryImage(
+                        base64Decode(
+                          _updateProfileController.userData?.photo ?? "",
+                        ),
+                      )
+                      : null,
+            ),
       ),
     );
   }
@@ -193,53 +212,28 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
     }
   }
 
-  void _onTapPasswordHide() {
-    setState(() {
-      _isPasswordHidden = !_isPasswordHidden;
-    });
-  }
-
   void _clearPaswordInputField() {
     _passwordTEController.clear();
   }
 
   Future<void> _updateProfile() async {
-    setState(() {
-      isLoading = true;
-    });
-    Map<String, dynamic> requestBody = {
-      "firstName": _firstNameTEController.text.trim(),
-      "lastName": _lastNameTEController.text.trim(),
-      "mobile": _phoneTEController.text.trim(),
-    };
-    if (_passwordTEController.text.isNotEmpty) {
-      requestBody["password"] = _passwordTEController.text;
-    }
-    if (_pickedImage != null) {
-      List<int> imageByte = await _pickedImage!.readAsBytes();
-      requestBody["photo"] = base64Encode(imageByte);
-    }
-
-    NetworkResponse response = await NetworkClient.postRequest(
-      url: Urls.updateProfile,
-      body: requestBody,
-      token: true,
+    final response = await _updateProfileController.updateProfile(
+      firstName: _firstNameTEController.text,
+      lastName: _lastNameTEController.text,
+      password: _passwordTEController.text,
+      image: _updateProfileController.pickedImage,
+      mobile: _phoneTEController.text.trim(),
     );
-    setState(() {
-      isLoading = false;
-    });
     if (!mounted) return;
-    if (response.isSuccess) {
+    if (response) {
       _clearPaswordInputField();
-      await AuthController.setUserInformation(newUser: requestBody);
-      _taskManagerAppBarKey.currentState?.setState(() {});
-      if (!mounted) return;
+
       showSnackBarMessage(context, message: "Profile Updated Successfully");
     } else {
       showSnackBarMessage(
         context,
         isError: true,
-        message: response.errorMessage,
+        message: _updateProfileController.errorMessageOfProfileUpdate!,
       );
     }
   }
@@ -249,9 +243,7 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
       source: ImageSource.gallery,
     );
     if (pickedFile != null) {
-      setState(() {
-        _pickedImage = pickedFile;
-      });
+      _updateProfileController.pickedImage = pickedFile;
     }
   }
 }

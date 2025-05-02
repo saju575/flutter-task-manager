@@ -18,7 +18,7 @@ class _CompletedScreenState extends State<CompletedScreen> {
       child: Padding(
         padding: EdgeInsets.symmetric(vertical: 9, horizontal: 12),
         child: TaskList(
-          status: TaskStatus.completed.label,
+          status: TaskStatus.completed,
           emptyDataMessage: "No completed tasks found",
         ),
       ),

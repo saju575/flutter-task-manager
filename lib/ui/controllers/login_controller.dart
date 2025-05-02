@@ -5,6 +5,15 @@ import 'package:task_manager/data/utils/urls.dart';
 import 'package:task_manager/ui/controllers/auth_controller.dart';
 
 class LoginController extends GetxController {
+  final NetworkClient _networkClient;
+  final AuthController _authController;
+
+  LoginController({
+    required NetworkClient networkClient,
+    required AuthController authController,
+  }) : _authController = authController,
+       _networkClient = networkClient;
+
   late bool _isLoginInProgress = false;
   String? _errorMessage;
   late bool _isPasswordHidden = true;
@@ -18,7 +27,7 @@ class LoginController extends GetxController {
     _isLoginInProgress = true;
     update();
     Map<String, dynamic> requestBody = {"email": email, "password": password};
-    NetworkResponse response = await NetworkClient.postRequest(
+    NetworkResponse response = await _networkClient.postRequest(
       url: Urls.login,
       body: requestBody,
     );
@@ -26,7 +35,7 @@ class LoginController extends GetxController {
     if (response.isSuccess) {
       LoginModel loginModel = LoginModel.fromJson(response.data);
 
-      await AuthController.saveUserInformation(
+      await _authController.saveUserInformation(
         loginModel.token,
         loginModel.userData!,
       );

@@ -17,7 +17,7 @@ class _ProgressScreenState extends State<ProgressScreen> {
       child: Padding(
         padding: EdgeInsets.symmetric(vertical: 9, horizontal: 12),
         child: TaskList(
-          status: TaskStatus.progress.label,
+          status: TaskStatus.progress,
           emptyDataMessage: "No progress tasks found",
         ),
       ),

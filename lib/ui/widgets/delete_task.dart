@@ -1,17 +1,19 @@
 import 'package:flutter/widgets.dart';
-import 'package:task_manager/data/services/network_client.dart';
-import 'package:task_manager/data/utils/urls.dart';
+import 'package:get/get.dart';
+import 'package:task_manager/data/enums/task_status.dart';
+import 'package:task_manager/ui/controllers/task_controller.dart';
 import 'package:task_manager/ui/widgets/alert_message.dart';
 import 'package:task_manager/ui/widgets/snack_bar_message.dart';
 
 Future<void> deleteTask({
   required BuildContext context,
   required String taskId,
+  required TaskStatus status,
   Function? onSuccess,
   Function? onError,
 }) async {
   final ValueNotifier<bool> isLoading = ValueNotifier(false);
-
+  final TaskController taskController = Get.find<TaskController>();
   await showAlert(
     context: context,
     title: "Delete Task",
@@ -22,14 +24,11 @@ Future<void> deleteTask({
     onConfirm: () async {
       isLoading.value = true;
 
-      NetworkResponse response = await NetworkClient.getRequest(
-        url: Urls.deleteTask(taskId),
-        token: true,
-      );
+      final response = await taskController.removeTask(taskId, status);
 
       isLoading.value = false;
 
-      if (response.isSuccess) {
+      if (response) {
         if (context.mounted) {
           Navigator.of(context).pop();
           showSnackBarMessage(context, message: "Task Deleted Successfully");
@@ -41,7 +40,7 @@ Future<void> deleteTask({
           showSnackBarMessage(
             context,
             isError: true,
-            message: response.errorMessage,
+            message: taskController.taskDeleteError!,
           );
         }
       }

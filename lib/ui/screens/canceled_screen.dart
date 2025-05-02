@@ -17,7 +17,7 @@ class _CanceledScreenState extends State<CanceledScreen> {
       child: Padding(
         padding: EdgeInsets.symmetric(vertical: 9, horizontal: 12),
         child: TaskList(
-          status: TaskStatus.canceled.label,
+          status: TaskStatus.canceled,
           emptyDataMessage: "No canceled tasks found",
         ),
       ),

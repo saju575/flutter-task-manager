@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:task_manager/ui/controllers/auth_controller.dart';
 import 'package:task_manager/ui/routes/app_routes.dart';
 import 'package:task_manager/ui/utils/app_colors.dart';
@@ -15,6 +16,7 @@ class TaskManagerAppBar extends StatefulWidget implements PreferredSizeWidget {
 }
 
 class TaskManagerAppBarState extends State<TaskManagerAppBar> {
+  final AuthController _authController = Get.find<AuthController>();
   @override
   Widget build(BuildContext context) {
     TextTheme textTheme = Theme.of(context).textTheme;
@@ -27,38 +29,44 @@ class TaskManagerAppBarState extends State<TaskManagerAppBar> {
           spacing: 8,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            CircleAvatar(
-              radius: 16,
-              backgroundImage:
-                  _shouldShowImage(AuthController.userModel?.photo)
-                      ? MemoryImage(
-                        base64Decode(AuthController.userModel?.photo ?? ""),
-                      )
-                      : null,
+            GetBuilder<AuthController>(
+              builder:
+                  (controller) => CircleAvatar(
+                    radius: 16,
+                    backgroundImage:
+                        _shouldShowImage(controller.userModel?.photo)
+                            ? MemoryImage(
+                              base64Decode(controller.userModel?.photo ?? ""),
+                            )
+                            : null,
+                  ),
             ),
 
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  AuthController.userModel?.fullName ?? "",
-                  style: textTheme.bodyMedium?.copyWith(
-                    color: AppColors.whiteColor,
-                    fontWeight: FontWeight.w500,
+            GetBuilder<AuthController>(
+              builder:
+                  (controller) => Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        controller.userModel?.fullName ?? "",
+                        style: textTheme.bodyMedium?.copyWith(
+                          color: AppColors.whiteColor,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        maxLines: 1,
+                      ),
+                      SizedBox(height: 2),
+                      Text(
+                        controller.userModel?.email ?? "",
+                        style: textTheme.bodySmall?.copyWith(
+                          color: AppColors.whiteColor,
+                          fontSize: 10,
+                          fontWeight: FontWeight.w400,
+                        ),
+                        maxLines: 1,
+                      ),
+                    ],
                   ),
-                  maxLines: 1,
-                ),
-                SizedBox(height: 2),
-                Text(
-                  AuthController.userModel?.email ?? "",
-                  style: textTheme.bodySmall?.copyWith(
-                    color: AppColors.whiteColor,
-                    fontSize: 10,
-                    fontWeight: FontWeight.w400,
-                  ),
-                  maxLines: 1,
-                ),
-              ],
             ),
           ],
         ),
@@ -93,7 +101,7 @@ class TaskManagerAppBarState extends State<TaskManagerAppBar> {
   }
 
   Future<void> _onTapLogout(BuildContext context) async {
-    await AuthController.clearUserData();
+    await _authController.clearUserData();
 
     if (context.mounted) {
       Navigator.pop(context);

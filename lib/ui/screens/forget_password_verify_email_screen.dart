@@ -1,7 +1,7 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:task_manager/data/services/network_client.dart';
-import 'package:task_manager/data/utils/urls.dart';
+import 'package:get/get.dart';
+import 'package:task_manager/ui/controllers/forget_password_controller.dart';
 import 'package:task_manager/ui/routes/app_routes.dart';
 import 'package:task_manager/ui/utils/app_colors.dart';
 import 'package:task_manager/ui/utils/input_validator.dart';
@@ -22,7 +22,8 @@ class _ForgetPasswordVerifyEmailScreenState
   final TextEditingController _emailTExtController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
-  late bool _isLoading = false;
+  final ForgetPasswordController _forgetPasswordController =
+      Get.find<ForgetPasswordController>();
 
   @override
   void dispose() {
@@ -72,12 +73,18 @@ class _ForgetPasswordVerifyEmailScreenState
 
                     const SizedBox(height: 19),
 
-                    ElevatedButton(
-                      onPressed:_isLoading?null: () => _onTapSubmitButton(context),
-                      child:
-                          _isLoading
-                              ? const Spinner()
-                              : const Icon(Icons.arrow_forward),
+                    GetBuilder<ForgetPasswordController>(
+                      builder:
+                          (controller) => ElevatedButton(
+                            onPressed:
+                                controller.isEmailVerifierLoading
+                                    ? null
+                                    : () => _onTapSubmitButton(context),
+                            child:
+                                controller.isEmailVerifierLoading
+                                    ? const Spinner()
+                                    : const Icon(Icons.arrow_forward),
+                          ),
                     ),
 
                     const SizedBox(height: 44),
@@ -128,25 +135,23 @@ class _ForgetPasswordVerifyEmailScreenState
   }
 
   Future<void> _submitEmail(BuildContext context) async {
-    setState(() {
-      _isLoading = true;
-    });
-    NetworkResponse response = await NetworkClient.getRequest(
-      url: Urls.recoverVerifyEmail(_emailTExtController.text.trim()),
+    final response = await _forgetPasswordController.recoverVerifyEmail(
+      email: _emailTExtController.text.trim(),
     );
-    setState(() {
-      _isLoading = false;
-    });
 
     if (!context.mounted) return;
 
-    response.isSuccess
+    response
         ? Navigator.pushNamed(
           context,
           AppRoutes.forgetPasswordPinVerification,
           arguments: _emailTExtController.text.trim(),
         )
-        : showSnackBarMessage(context, message: response.errorMessage);
+        : showSnackBarMessage(
+          context,
+          isError: true,
+          message: _forgetPasswordController.errorMessageOfEmailVerifier!,
+        );
   }
 
   void _onTapSignIn() {

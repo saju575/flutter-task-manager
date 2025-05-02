@@ -3,6 +3,11 @@ import 'package:task_manager/data/services/network_client.dart';
 import 'package:task_manager/data/utils/urls.dart';
 
 class RegisterController extends GetxController {
+  final NetworkClient _networkClient;
+
+  RegisterController({required NetworkClient networkClient})
+    : _networkClient = networkClient;
+
   late bool _isPasswordHidden = true;
   late bool _registrationInProgress = false;
   String? _errorMessage;
@@ -28,7 +33,7 @@ class RegisterController extends GetxController {
       "mobile": mobile,
       "password": password,
     };
-    NetworkResponse response = await NetworkClient.postRequest(
+    NetworkResponse response = await _networkClient.postRequest(
       url: Urls.register,
       body: requestBody,
     );

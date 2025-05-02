@@ -1,19 +1,21 @@
 import 'package:flutter/material.dart';
-import 'package:task_manager/data/models/task_list_model.dart';
-import 'package:task_manager/data/models/task_model.dart';
-import 'package:task_manager/data/services/network_client.dart';
-import 'package:task_manager/data/utils/urls.dart';
+import 'package:get/get.dart';
+import 'package:task_manager/data/enums/task_status.dart';
+import 'package:task_manager/ui/controllers/task_controller.dart';
 import 'package:task_manager/ui/utils/app_colors.dart';
-import 'package:task_manager/ui/utils/get_task_status.dart';
 import 'package:task_manager/ui/widgets/delete_task.dart';
+
+// import 'package:task_manager/ui/widgets/delete_task.dart';
 import 'package:task_manager/ui/widgets/empty_placeholder.dart';
 import 'package:task_manager/ui/widgets/show_app_bottom_sheet.dart';
+// import 'package:task_manager/ui/widgets/show_app_bottom_sheet.dart';
 import 'package:task_manager/ui/widgets/spiner.dart';
 import 'package:task_manager/ui/widgets/task_card.dart';
 import 'package:task_manager/ui/widgets/update_task_status.dart';
+// import 'package:task_manager/ui/widgets/update_task_status.dart';
 
 class TaskList extends StatefulWidget {
-  final String status;
+  final TaskStatus status;
   final String? errorMessage;
   final String? emptyDataMessage;
 
@@ -29,15 +31,16 @@ class TaskList extends StatefulWidget {
 }
 
 class _TaskListState extends State<TaskList> {
-  late List<TaskModel> _taskListData = [];
-  late bool _isFetchingTaskList = false;
-  late bool _isError = false;
-  late bool _isInitialFetch = false;
+  final TaskController _taskController = Get.find<TaskController>();
+  // late List<TaskModel> _taskListData = [];
+  // late bool _isFetchingTaskList = false;
+  // late bool _isError = false;
+  // late bool _isInitialFetch = false;
 
   @override
   void initState() {
     super.initState();
-    _initialFetchTaskList();
+    _taskController.initialFetchTaskList(status: widget.status);
   }
 
   @override
@@ -55,95 +58,109 @@ class _TaskListState extends State<TaskList> {
   }
 
   Widget _buildTaskListContent(TextTheme textTheme) {
-    if (_isInitialFetch && _isFetchingTaskList) {
-      return Center(child: Spinner(size: 24, color: AppColors.primaryColor));
-    } else if (_isError) {
-      return ListView(
-        children: [
-          SizedBox(
-            height: MediaQuery.of(context).size.height * 0.7,
-            child: EmptyPlaceholder(
-              message: widget.errorMessage ?? "Error fetching task list",
-            ),
-          ),
-        ],
-      );
-    } else if (_taskListData.isEmpty) {
-      return ListView(
-        children: [
-          SizedBox(
-            height: MediaQuery.of(context).size.height * 0.7,
-            child: Center(
-              child: EmptyPlaceholder(
-                message: widget.emptyDataMessage ?? "No data found",
+    return GetBuilder<TaskController>(
+      builder: (controller) {
+        final taskList = controller.getTaskList(widget.status);
+        final isLoading = controller.getLoading(widget.status);
+        final error = controller.getError(widget.status);
+        if (isLoading && (taskList == null || taskList.data.isEmpty)) {
+          return Center(
+            child: Spinner(size: 24, color: AppColors.primaryColor),
+          );
+        } else if (error != null) {
+          return ListView(
+            children: [
+              SizedBox(
+                height: MediaQuery.of(context).size.height * 0.7,
+                child: EmptyPlaceholder(
+                  message: widget.errorMessage ?? "Error fetching task list",
+                ),
               ),
-            ),
-          ),
-        ],
-      );
-    } else {
-      return _taskList(textTheme);
-    }
+            ],
+          );
+        } else if (taskList == null || taskList.data.isEmpty) {
+          return ListView(
+            children: [
+              SizedBox(
+                height: MediaQuery.of(context).size.height * 0.7,
+                child: Center(
+                  child: EmptyPlaceholder(
+                    message: widget.emptyDataMessage ?? "No data found",
+                  ),
+                ),
+              ),
+            ],
+          );
+        } else {
+          return _taskList(textTheme);
+        }
+      },
+    );
   }
 
   Widget _taskList(TextTheme textTheme) {
-    return ListView.separated(
-      itemBuilder:
-          (context, index) => TaskCard(
-            task: _taskListData[index],
-            onDelete: () {
-              deleteTask(
-                context: context,
-                taskId: _taskListData[index].id,
-                onSuccess: _refreshTaskList,
-              );
-            },
-            onEdit: () {
-              showAppBottomSheet(
-                context: context,
-                child: UpdateTaskStatus(
-                  taskId: _taskListData[index].id,
-                  currentStatus: getTaskStatus(_taskListData[index].status),
-                  onSuccess: _refreshTaskList,
+    return GetBuilder<TaskController>(
+      builder:
+          (controller) => ListView.separated(
+            itemBuilder:
+                (context, index) => TaskCard(
+                  task: controller.getTaskList(widget.status)!.data[index],
+                  onDelete: () {
+                    deleteTask(
+                      context: context,
+                      taskId:
+                          controller.getTaskList(widget.status)!.data[index].id,
+                      status: widget.status,
+                      onSuccess: _refreshTaskList,
+                    );
+                  },
+                  onEdit: () {
+                    showAppBottomSheet(
+                      context: context,
+                      child: UpdateTaskStatus(
+                        taskId:
+                            controller
+                                .getTaskList(widget.status)!
+                                .data[index]
+                                .id,
+                        currentStatus: widget.status,
+                        onSuccess: _refreshTaskList,
+                      ),
+                    );
+                  },
                 ),
-              );
-            },
+            separatorBuilder: (context, index) => SizedBox(height: 9),
+            itemCount: controller.getTaskList(widget.status)?.data.length ?? 0,
           ),
-      separatorBuilder: (context, index) => SizedBox(height: 9),
-      itemCount: _taskListData.length,
     );
   }
 
-  Future<void> _initialFetchTaskList() async {
-    setState(() {
-      _isError = false;
-      _isInitialFetch = true;
-      _isFetchingTaskList = true;
-    });
-    await _getTaskList();
-    setState(() {
-      _isFetchingTaskList = false;
-      _isInitialFetch = false;
-    });
-  }
+  // Future<void> _initialFetchTaskList() async {
+  //   setState(() {
+  //     _isError = false;
+  //     _isInitialFetch = true;
+  //     _isFetchingTaskList = true;
+  //   });
+  //   await _getTaskList();
+  //   setState(() {
+  //     _isFetchingTaskList = false;
+  //     _isInitialFetch = false;
+  //   });
+  // }
 
-  Future<void> _getTaskList() async {
-    NetworkResponse response = await NetworkClient.getRequest(
-      url: Urls.getLaskListByStatus(widget.status),
-      token: true,
-    );
-    if (response.isSuccess) {
-      _taskListData = TaskListModel.fromJson(response.data).data;
-    } else {
-      _isError = true;
-    }
-  }
+  // Future<void> _getTaskList() async {
+  //   NetworkResponse response = await NetworkClient.getRequest(
+  //     url: Urls.getLaskListByStatus(widget.status),
+  //     token: true,
+  //   );
+  //   if (response.isSuccess) {
+  //     _taskListData = TaskListModel.fromJson(response.data).data;
+  //   } else {
+  //     _isError = true;
+  //   }
+  // }
 
   Future<void> _refreshTaskList() async {
-    setState(() {
-      _isError = false;
-    });
-    await _getTaskList();
-    setState(() {});
+    await _taskController.refreshTaskList(status: widget.status);
   }
 }
