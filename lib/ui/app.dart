@@ -13,8 +13,9 @@ class TaskManagerApp extends StatelessWidget {
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
       navigatorKey: navigatorKey,
-      routes: AppRoutes.routes,
+      // routes: AppRoutes.routes,
       initialRoute: AppRoutes.splash,
+      onGenerateRoute: AppRoutes.generateRoute,
       initialBinding: ControllerBinder(),
       theme: ThemeData(
         primaryColor: AppColors.primaryColor, // Primary color of the app
